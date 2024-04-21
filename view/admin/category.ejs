@@ -1,0 +1,193 @@
+<%-include('../partials/adminHeader')%>
+    <div class="container-scroller">
+      <!-- partial:partials/_sidebar.html -->
+      <nav class="sidebar sidebar-offcanvas" id="sidebar">
+        <div class="sidebar-brand-wrapper d-none d-lg-flex align-items-center justify-content-center fixed-top">
+          <a class="sidebar-brand brand-logo" href="index.html"><img src="/admin/assets/images/logo.svg" alt="logo" /></a>
+          <a class="sidebar-brand brand-logo-mini" href="index.html"><img src="/admin/assets/images/logo-mini.svg" alt="logo" /></a>
+        </div>
+        <ul class="nav">
+          <li class="nav-item profile">
+            <div class="profile-desc">
+              <div class="profile-pic">
+                <div class="count-indicator">
+                  <img class="img-xs rounded-circle " src="/admin/assets/images/faces/face15.jpg" alt="">
+                  <span class="count bg-success"></span>
+                </div>
+                <div class="profile-name">
+                  <h5 class="mb-0 font-weight-normal">Admin</h5>
+                  
+                </div>
+              </div>
+            </div>
+          </li>
+          
+          <li class="nav-item menu-items">
+            <a class="nav-link" href="/admin">
+              <span class="menu-icon">
+                <i class="mdi mdi-speedometer"></i>
+              </span>
+              <span class="menu-title">Dashboard</span>
+            </a>
+          </li>
+          <li class="nav-item menu-items">
+            <a class="nav-link" href="/admin/allusers" >
+              <span class="menu-icon">
+                <i class="mdi mdi-laptop"></i>
+              </span>
+              <span class="menu-title">All users</span>
+              
+            </a>
+          </li>
+          <li class="nav-item menu-items">
+            <a class="nav-link" href="/admin/allproducts">
+              <span class="menu-icon">
+                <i class="mdi mdi-playlist-play"></i>
+              </span>
+              <span class="menu-title">All Products</span>
+            </a>
+          </li>
+          <li class="nav-item menu-items">
+            <a class="nav-link" href="/admin/category">
+              <span class="menu-icon">
+                <i class="mdi mdi-table-large"></i>
+              </span>
+              <span class="menu-title">Category</span>
+            </a>
+          </li>
+          <li class="nav-item menu-items">
+            <a class="nav-link" href="/admin/allorders">
+              <span class="menu-icon">
+                <i class="mdi mdi-chart-bar"></i>
+              </span>
+              <span class="menu-title">All orders</span>
+            </a>
+          </li>
+        </ul>
+      </nav>
+      <!-- partial -->
+      <div class="container-fluid page-body-wrapper">
+        <!-- partial:partials/_navbar.html -->
+        
+        <!-- partial -->
+        <div class="main-panel">
+          <div class="content-wrapper">
+
+            <div class="col-lg-12 grid-margin stretch-card">
+              <div class="card">
+                <div class="card-body">
+                  <h4 class="card-title">All Categories</h4>
+                  
+                  <div class="table-responsive">
+                    <table class="table table-hover">
+                      <thead>
+                        <tr>
+                          <th>No.</th>
+                          <th>Name</th>
+                          <th>Description</th>
+                          <th>Status</th>
+                          <th>Action</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <%category.forEach((category,index)=>{%>
+                          <tr>
+                            <td><%=index+1%></td>
+                            <td><%=category.Name%></td>
+                            <td><%=category.Description%></td>
+                            <td><%=category.Status%></td>
+                            <td><a href="/admin/editcategory/<%=category._id%>">Edit</a></td>
+                            <%if(category.Status=='active'){%>
+                            <td><a class="btn btn-danger" onclick="confirmBlock('<%= category._id %>')">block</button></td>
+                            <%}else{%>
+                            <td><a class="btn btn-success" onclick="unblock('<%=category._id%>')">unblock</button></td>
+                            <%}%>
+                          </tr>
+                        <%})%>
+                      </tbody>
+                    </table>
+                  </div>
+
+                  <div>
+                    <a href="/admin/addcategory">
+                      <button type="button" class="btn btn-primary btn-rounded btn-fw">Add Category</button>
+                    </a>
+                  </div>  
+
+                </div>
+              </div>
+            </div>
+
+          </div>
+          <!-- content-wrapper ends -->
+          <!-- partial:partials/_footer.html -->
+          
+          <!-- partial -->
+        </div>
+        <!-- main-panel ends -->
+      </div>
+      <!-- page-body-wrapper ends -->
+    </div>
+    <!-- container-scroller -->
+    <!-- plugins:js -->
+  <%-include('../partials/adminFooter')%>
+
+  <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+  <script>
+    function confirmBlock(categoryId) {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: 'You are about to block this category!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, block it!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          block(categoryId, 'block');
+        }
+      });
+    }
+
+    function unblock(categoryId) {
+      Swal.fire({
+        title: 'Are you sure?',
+        text: 'You are about to unblock this category!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Yes, unblock it!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          block(categoryId, 'unblock');
+        }
+      });
+    }
+  
+    function block(categoryId, action) {
+      fetch(`/admin/blockcategory`, {
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+        },
+        body: JSON.stringify({ categoryId, action }),
+      })
+      .then(response => response.json())
+      .then((data) => {
+        if (data.success) {
+          Swal.fire('Success!', 'Category has been blocked successfully.', 'success')
+            .then(() => {
+              window.location.reload();
+            });
+        } else {
+          Swal.fire('Error!', 'Something went wrong. Please try again later.', 'error');
+        }
+      });
+    }
+  </script>
+  
+  
+  

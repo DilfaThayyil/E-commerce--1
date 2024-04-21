@@ -1,0 +1,165 @@
+<%-include('../partials/header')%>
+<%-include('../partials/navbar')%>
+<%-include('../partials/mobileNavbar')%>
+   
+<div class="page-wrapper">
+    <main class="main">
+        <nav aria-label="breadcrumb" class="breadcrumb-nav border-0 mb-0">
+            <div class="container">
+                <ol class="breadcrumb">
+                    <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+                    <li class="breadcrumb-item"><a href="#">Pages</a></li>
+                    <li class="breadcrumb-item active" aria-current="page">Register</li>
+                </ol>
+            </div><!-- End .container -->
+        </nav><!-- End .breadcrumb-nav -->
+
+        <div class="login-page bg-image pt-8 pb-8 pt-md-12 pb-md-12 pt-lg-17 pb-lg-17" style="background-image: url('/user/assets/images/backgrounds/login-bg.jpg')">
+            <div class="container">
+                <div class="form-box">
+                    <div class="form-tab">
+                        <ul class="nav nav-pills nav-fill" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link active" id="register-tab-2" data-toggle="tab" href="#register-2" role="tab" aria-controls="register-2" aria-selected="true">Register</a>
+                            </li>
+                        </ul>
+                        <div class="tab-content">
+                            <div class="tab-pane fade" id="signin-2" role="tabpanel" aria-labelledby="signin-tab-2"></div>
+                            <div class="tab-pane fade show active" id="register-2" role="tabpanel" aria-labelledby="register-tab-2">
+                                <form id="registerForm" action="/registerSubmit" method="post">
+                                    <p id="err" class="text-danger"></p>
+                                    <div class="form-group">
+                                        <label for="register-name-2">Name</label>
+                                        <input type="text" class="form-control" id="register-name-2" name="name" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="register-email-2">Your email address *</label>
+                                        <input type="email" class="form-control" id="register-email-2" name="email" required>
+                                        <span id="email-error" style="color: red;"></span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="register-mobileNumber-2">Mobile number</label>
+                                        <input type="tel" class="form-control" id="register-mobileNumber-2" name="mobileNumber" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="register-password-2">Password *</label>
+                                        <input type="password" class="form-control" id="register-password-2" name="password" required>
+                                        <span id="password-error" style="color: red;"></span>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="confirm-password">Confirm Password *</label>
+                                        <input type="password" class="form-control" id="confirm-password" required>
+                                        <span id="confirm-password-error" style="color: red;"></span>
+                                    </div>
+                                    <div class="form-check mb-4">
+                                        <input class="form-check-input" type="checkbox" id="showPasswordCheckbox" onclick="togglePasswordVisibility()" style="margin-top: 7px;">
+                                        <label class="form-check-label" for="showPasswordCheckbox" style="margin-left: 5px;">Show Password</label>
+                                    </div>
+                                    <div class="form-footer">
+                                        <button type="submit" id="registerBtn" class="btn btn-outline-primary-2">
+                                            <span>SIGN UP</span>
+                                            <i class="icon-long-arrow-right"></i>
+                                        </button>
+                                        <div class="form-group">
+                                            <a href="/login">Already have an account ?</a>
+                                        </div>
+                                    </div>
+                                </form>
+                                <div class="form-choice">
+                                    <p class="text-center">or sign in with</p>
+                                    <div class="row">
+                                        <div class="col-sm-6">
+                                            <a href="/auth/google" class="btn btn-login btn-g">
+                                                <i class="icon-google"></i>
+                                                Login With Google
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<%-include('../partials/footer')%>
+<%-include('../partials/footerbar')%>
+
+<script>
+    let err=document.getElementById('err')
+    function togglePasswordVisibility() {
+        let passwordInput = document.getElementById('register-password-2');
+        let confirmPasswordInput = document.getElementById('confirm-password');
+
+        if (passwordInput.type === "password") {
+            passwordInput.type = "text";
+            confirmPasswordInput.type = "text";
+        } else {
+            passwordInput.type = "password";
+            confirmPasswordInput.type = "password";
+        }
+    }
+
+    let mobileNumberInput = document.getElementById('register-mobileNumber-2');
+    mobileNumberInput.addEventListener('input', function(event) {
+        let inputValue = event.target.value;
+        let numericValue = inputValue.replace(/\D/g, '');
+        event.target.value = numericValue;
+    });
+
+    let emailInput = document.getElementById('register-email-2');
+    emailInput.addEventListener('input', function (event) {
+        let email = event.target.value;
+        let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        let isValidEmail = emailRegex.test(email);
+        let emailError = document.getElementById('email-error');
+
+        if (!isValidEmail) {
+            emailError.textContent = "Invalid email format";
+        } else {
+            emailError.textContent = "";
+        }
+    });
+
+    let passwordInput = document.getElementById('register-password-2');
+    passwordInput.addEventListener('input', function (event) {
+        let password = event.target.value;
+        let passwordError = document.getElementById('password-error');
+
+        if (password.length < 8) {
+            passwordError.textContent = "Password must be at least 8 characters long";
+        } else {
+            passwordError.textContent = "";
+        }
+    });
+
+    let confirmPasswordInput = document.getElementById('confirm-password');
+    confirmPasswordInput.addEventListener('input', function (event) {
+        let password = document.getElementById('register-password-2').value;
+        let confirmPassword = event.target.value;
+        let confirmPasswordError = document.getElementById('confirm-password-error');
+
+        if (confirmPassword !== password) {
+            confirmPasswordError.textContent = "Passwords do not match";
+        } else {
+            confirmPasswordError.textContent = "";
+        }
+    });
+
+    document.getElementById('registerBtn').addEventListener('click', function (event) {
+        let email = document.getElementById('register-email-2').value;
+        let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        let isValidEmail = emailRegex.test(email);
+
+        let password = document.getElementById('register-password-2').value;
+        let confirmPassword = document.getElementById('confirm-password').value;
+
+        if (!isValidEmail || password.length < 8 || password !== confirmPassword) {
+            event.preventDefault();
+            err.innerHTML="Please fill all the field in the form"
+        }
+    });
+</script>

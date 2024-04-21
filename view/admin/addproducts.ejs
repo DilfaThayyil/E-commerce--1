@@ -1,0 +1,190 @@
+<%-include('../partials/adminHeader')%>
+
+<div class="container-scroller">
+    <nav class="sidebar sidebar-offcanvas" id="sidebar">
+        <div class="sidebar-brand-wrapper d-none d-lg-flex align-items-center justify-content-center fixed-top">
+          <a class="sidebar-brand brand-logo" href="index.html"><img src="/admin/assets/images/logo.svg" alt="logo" /></a>
+          <a class="sidebar-brand brand-logo-mini" href="index.html"><img src="/admin/assets/images/logo-mini.svg" alt="logo" /></a>
+        </div>
+        <ul class="nav">
+          <li class="nav-item profile">
+            <div class="profile-desc">
+              <div class="profile-pic">
+                <div class="count-indicator">
+                  <img class="img-xs rounded-circle " src="/admin/assets/images/faces/face15.jpg" alt="">
+                  <span class="count bg-success"></span>
+                </div>
+                <div class="profile-name">
+                  <h5 class="mb-0 font-weight-normal">Admin</h5>
+                  
+                </div>
+              </div>
+            </div>
+          </li>
+          
+          <li class="nav-item menu-items">
+            <a class="nav-link" href="/admin">
+              <span class="menu-icon">
+                <i class="mdi mdi-speedometer"></i>
+              </span>
+              <span class="menu-title">Dashboard</span>
+            </a>
+          </li>
+          <li class="nav-item menu-items">
+            <a class="nav-link" href="/admin/allusers" >
+              <span class="menu-icon">
+                <i class="mdi mdi-laptop"></i>
+              </span>
+              <span class="menu-title">All users</span>
+              
+            </a>
+          </li>
+          <li class="nav-item menu-items">
+            <a class="nav-link" href="/admin/allproducts">
+              <span class="menu-icon">
+                <i class="mdi mdi-playlist-play"></i>
+              </span>
+              <span class="menu-title">All Products</span>
+            </a>
+          </li>
+          <li class="nav-item menu-items">
+            <a class="nav-link" href="/admin/category">
+              <span class="menu-icon">
+                <i class="mdi mdi-table-large"></i>
+              </span>
+              <span class="menu-title">Category</span>
+            </a>
+          </li>
+          <li class="nav-item menu-items">
+            <a class="nav-link" href="/admin/allorders">
+              <span class="menu-icon">
+                <i class="mdi mdi-chart-bar"></i>
+              </span>
+              <span class="menu-title">All orders</span>
+            </a>
+          </li>
+        </ul>
+    </nav>
+    <div class="container-fluid page-body-wrapper">
+      <!-- partial:partials/_navbar.html -->
+      
+      <!-- partial -->
+      <div class="main-panel">
+        <div class="content-wrapper">
+          <div class="col-md-12 grid-margin stretch-card">
+            <div class="card">
+              <div class="card-body">
+                <h4 class="card-title">Add Products</h4>
+                
+                <form class="forms-sample" method="post" action="/admin/addProductsSubmit" enctype="multipart/form-data">
+                  <div class="form-group">
+                      <label for="productname">Product name</label>
+                      <input type="text" class="form-control" id="productName" placeholder="Product name" name="productname">
+                  </div>
+                  <div class="form-group">
+                      <label for="categoryname">Category</label>
+                      <select name="categoryname" id="categoryName" class="form-control">
+                          <% category.forEach(category =>{ %>
+                          <option value="<%=category._id%>"><%=category.Name%></option>
+                          <% }) %>
+                      </select>
+                  </div>
+                  <div class="form-group">
+                      <label for="price">Price</label>
+                      <input type="number" class="form-control" id="productPrice" placeholder="Price" name="price">
+                  </div>
+                  <div class="form-group">
+                    <label for="discountprice">Discount Price</label>
+                    <input type="number" class="form-control" id="productDiscountPrice" placeholder="Discount Price" name="discountPrice">
+                </div>
+                  <div class="form-group">
+                      <label for="quantity">Quantity</label>
+                      <input type="number" class="form-control" id="productQuantity" placeholder="Quantity" name="quantity">
+                  </div>
+                  <div class="form-group">
+                      <label for="exampleInputConfirmPassword1">Description</label>
+                      <input type="text" class="form-control" id="productDescription" placeholder="Description" name="description">
+                  </div>
+              
+                  <div class="form-group row">
+                    <label for="productDate" class="col-sm-3 col-form-label">Images</label>
+                    <input type="file" class="form-control" id="productImages" name="images" multiple="multiple" required>
+                    <small id="imagesError" class="text-danger"></small>
+            
+                    <!-- Image preview container -->
+                    <div id="image-preview-container" class="mt-3"></div>
+                </div>
+              
+                  <button type="submit" class="btn btn-primary mr-2">Submit</button>
+                  <div id="error" style="color: red; display: none;">Please fill out all required fields</div>
+
+              
+              </form>
+              </div>
+            </div>
+          </div>
+          </div>
+        </div>
+</div>
+
+<%-include('../partials/adminFooter')%>
+
+
+
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/sweetalert/2.1.2/sweetalert.min.js" integrity="sha512-AA1Bzp5Q0K1KanKKmvN/4d3IRKVlv9PYgwFPvm32nPO6QS8yH1HO7LbgB1pgiOxPtfeg5zEn2ba64MUcqJx6CA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<!-- Your existing form code -->
+<script src="https://code.jquery.com/jquery-3.6.4.min.js"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function() {
+      document.querySelector('.forms-sample').addEventListener('submit', function(event) {
+          event.preventDefault(); // Prevent form submission
+          
+          // Validation
+          let productName = document.getElementById('productName').value.trim();
+          let productDescription = document.getElementById('productDescription').value.trim();
+          let productImages = document.getElementById('productImages').files;
+          let errorElement = document.getElementById('error');
+          if( productImages.length > 4){
+            errorElement.innerHTML="4 Image maximum"
+          }
+          if (productName.length < 3 || productDescription.length < 10 || productImages.length < 3 ) {
+              errorElement.style.display = 'block';
+          } else {
+              // If validation passes, submit the form
+              errorElement.style.display = 'none'; // Hide error message if previously shown
+              this.submit();
+          }
+      });
+  });
+</script>
+
+<script>
+  document.getElementById('productImages').addEventListener('change', function(event) {
+      document.getElementById('image-preview-container').innerHTML = '';
+
+      let files = event.target.files;
+
+      for (let i = 0; i < files.length; i++) {
+          let file = files[i];
+
+          let reader = new FileReader();
+
+          reader.onload = (function(file) {
+              return function(event) {
+                let img = document.createElement('img');
+                    img.className = 'img-thumbnail';
+                    img.style.maxHeight = '160px';
+                    img.style.maxWidth = '160px'; 
+                    img.src = event.target.result;
+                  
+                  document.getElementById('image-preview-container').appendChild(img);
+              };
+          })(file);
+
+          reader.readAsDataURL(file);
+      }
+  });
+</script>
+
