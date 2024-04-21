@@ -2,14 +2,12 @@ const express=require('express')
 const app = express()
 const passport=require('passport')
 const axios=require('axios')
-const CLIENT_ID= '240881592511-qb7gncd74kasak65vhv6ppmq9ud4ld74.apps.googleusercontent.com'
-const CLIENT_SECRET= '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'
-const REDIRECT_URI = 'http://localhost:3000/auth/google/callback'
+const CLIENT_ID= process.env.CLIENT_ID
+const CLIENT_SECRET= process.env.CLIENT_SECRET
+const REDIRECT_URI = process.env.REDIRECT_URI
 const bcrypt=require('bcrypt')
 const User=require('./model/userSchema')
-const APP_ID='698320542271754'      
-const APP_SECRET='8ddb64e07f25faa85f900aca981866cb'
-const FACEBOOK_URI='http://localhost:3000/auth/facebook/callback'
+require('dotenv').config()
   
 
 // login with google
