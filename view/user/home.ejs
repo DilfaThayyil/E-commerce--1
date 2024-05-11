@@ -14,15 +14,21 @@
                                 </li>
                                 <li>
                                     <a href="/allproducts">Shop</a>
-        
-                                    
                                 </li>
-                                <li>
-
+                                <li >
+                                    <a href="/">Contact</a>
+                                </li>
+                                <li >
+                                    <a href="/">About Us</a>
+                                </li>
+                                <!-- <li >
+                                    <a href="/">My Account</a>
+                                </li> -->
+                                <!-- <li hidden>
                                     <a href="elements-list.html">Elements</a>
-                                </li>
+                                </li> -->
         
-                                <li><a href="#">Buy product</a></li>
+                                <li hidden><a href="#">Buy product</a></li>
                             </ul><!-- End .menu -->
                         </nav><!-- End .main-nav -->
         
@@ -41,16 +47,17 @@
                     <div class="header-right">
                         <div class="header-search header-search-extended header-search-visible">
                             <a href="#" class="search-toggle" role="button"><i class="icon-search"></i></a>
-                            <form action="#" method="get">
+                            <form>
                                 <div class="header-search-wrapper">
                                     <label for="q" class="sr-only">Search</label>
-                                    <input type="search" class="form-control" name="q" id="q" placeholder="Search product ..." required>
+                                    <input type="text" class="form-control" name="q" id="search-item" placeholder="Search product ..." 
+                                    onkeyup="search()" required>
                                     <button class="btn btn-primary" type="submit"><i class="icon-search"></i></button>
                                 </div><!-- End .header-search-wrapper -->
                             </form>
                         </div><!-- End .header-search -->
                         
-                        <a href="wishlist.html" class="wishlist-link">
+                        <a href="wishlist.html" class="wishlist-link" hidden>
                             <i class="icon-heart-o"></i>
                             <span class="wishlist-count">0</span>
                         </a>
@@ -58,22 +65,23 @@
                         <div class="dropdown cart-dropdown">
                             <a href="/cart" class="dropdown-toggle" role="button" aria-haspopup="true" aria-expanded="false" data-display="static">
                                 <i class="icon-shopping-cart"></i>
-                                <span class="cart-count">0</span>
+                                <!-- <span class="cart-count"></span> -->
                             </a>
                             
                             <div class="dropdown">
-                                <a class="dropdown-toggle p-4"  type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <a  class="dropdown-toggle p-4" type="button" id="dropdownMenu2" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                   <i class="fa-regular fa-user fa-sm " style="color: #ffffff; "></i> <!-- Icon here -->
                                 </a>
                                 <div class="dropdown-menu dropdown-menu-right mt-2" aria-labelledby="dropdownMenu2" style="width: 40px;" >
                                     
                                  <% if(user){%>
                                     <P><%=user%></P>
-                                   
+                                    <a href="/userProfile">Profile</a>
                                     <a href="/logout">Logout</a>
                                     <%}else{%>
                                         <a href="/login">Login</a>
                                     <%}%>
+
                                 </div>
                               </div>
                                             
@@ -108,7 +116,7 @@
                                 <h1 class="intro-title text-white">Save up to</h1><!-- End .intro-title -->
                                 <div class="intro-text text-white">30-50% off</div><!-- End .intro-text -->
                                 <div class="intro-action cross-txt">
-                                    <a href="category.html" class="btn btn-outline-white">
+                                    <a href="/allproducts" class="btn btn-outline-white">
                                         <span>Discover More</span>
                                     </a>
                                 </div>
@@ -124,50 +132,50 @@
                 <div class="row">
                     <div class="col-lg-6">
                         <div class="banner banner-hover">
-                            <a href="#">
+                            <a href="/">
                                 <img src="/user/assets/images/demos/demo-18/banners/banner-1.jpg" alt="Banner">
                             </a>
 
                             <div class="banner-content">
-                                <h3 class="banner-title text-white"><a href="#">Sweatshirts & Hoodies</a></h3><!-- End .banner-title -->
-                                <a href="#" class="banner-link">Shop Now <i class="icon-long-arrow-right"></i></a>
+                                <h3 class="banner-title text-white"><a href="/allproducts">Sweatshirts & Hoodies</a></h3><!-- End .banner-title -->
+                                <a href="/allproducts" class="banner-link">Shop Now <i class="icon-long-arrow-right"></i></a>
                             </div><!-- End .banner-content -->
                         </div><!-- End .banner -->
                     </div><!-- End .col-lg-6 -->
 
                     <div class="col-sm-6 col-lg-3">
                         <div class="banner banner-hover">
-                            <a href="#">
+                            <a href="/allproducts">
                                 <img src="/user/assets/images/demos/demo-18/banners/banner-2.jpg" alt="Banner">
                             </a>
 
                             <div class="banner-content">
-                                <h3 class="banner-title text-white"><a href="#">Men’s Jacket</a></h3><!-- End .banner-title -->
-                                <a href="#" class="banner-link">Shop Now <i class="icon-long-arrow-right"></i></a>
+                                <h3 class="banner-title text-white"><a href="/allproducts">Men’s Jacket</a></h3><!-- End .banner-title -->
+                                <a href="/allproducts" class="banner-link">Shop Now <i class="icon-long-arrow-right"></i></a>
                             </div><!-- End .banner-content -->
                         </div><!-- End .banner -->
                     </div><!-- End .col-sm-6 -->
 
                     <div class="col-sm-6 col-lg-3">
                         <div class="banner banner-hover">
-                            <a href="#">
+                            <a href="/allproducts">
                                 <img src="/user/assets/images/demos/demo-18/banners/banner-3.jpg" alt="Banner">
                             </a>
 
                             <div class="banner-content">
-                                <h3 class="banner-title text-white"><a href="#">Women’s jackets</a></h3><!-- End .banner-title -->
-                                <a href="#" class="banner-link">Shop Now <i class="icon-long-arrow-right"></i></a>
+                                <h3 class="banner-title text-white"><a href="/allproducts">Women’s jackets</a></h3><!-- End .banner-title -->
+                                <a href="/allproducts" class="banner-link">Shop Now <i class="icon-long-arrow-right"></i></a>
                             </div><!-- End .banner-content -->
                         </div><!-- End .banner -->
 
                         <div class="banner banner-hover">
-                            <a href="#">
+                            <a href="/allproducts">
                                 <img src="/user/assets/images/demos/demo-18/banners/banner-4.jpg" alt="Banner">
                             </a>
 
                             <div class="banner-content">
-                                <h3 class="banner-title text-white"><a href="#">Accessories</a></h3><!-- End .banner-title -->
-                                <a href="#" class="banner-link">Shop Now <i class="icon-long-arrow-right"></i></a>
+                                <h3 class="banner-title text-white"><a href="/allproducts">Accessories</a></h3><!-- End .banner-title -->
+                                <a href="/allproducts" class="banner-link">Shop Now <i class="icon-long-arrow-right"></i></a>
                             </div><!-- End .banner-content -->
                         </div><!-- End .banner -->
                     </div><!-- End .col-sm-6 -->
@@ -178,7 +186,7 @@
                 <div class="row">
                     <div class="col-lg-9">
                         <h2 class="title">Recent Arrivals</h2><!-- End .title -->
-                        <div class="products-container mb-7">
+                        <div class="products-container mb-7" id="product-list">
                             <div class="row ">
 
 
@@ -186,14 +194,14 @@
 
                                
                                 <div class="col-6 col-md-4">
-                                    <div class="product product-4">
+                                    <div class="product product-4" >
                                         <figure class="product-media">
                                             <a href="/product/<%=product._id%>">
                                                 <img src="/uploads/<%=product.Images[0]%>" alt="Product image" class="product-image">
                                                 <img src="/uploads/<%=product.Images[1]%>" alt="Product image" class="product-image-hover">
                                             </a>
 
-                                            <div class="product-action-vertical">
+                                            <div class="product-action-vertical" hidden>
                                                 <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
                                                 <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a>
                                             </div><!-- End .product-action -->
@@ -211,7 +219,7 @@
                                             <div class="product-cat">
                                                 <a href="#"><%=product.Category.Name%></a>
                                             </div><!-- End .product-cat -->
-                                            <h3 class="product-title"><a href="product.html"><%=product.Name%></a></h3><!-- End .product-title -->
+                                            <h3 class="product-title"><a href="/product/<%=product._id%>"><%=product.Name%></a></h3><!-- End .product-title -->
                                             <div class="product-price">
                                                 <%=product.Price%>
                                             </div><!-- End .product-price -->
@@ -446,9 +454,29 @@
 <script src="https://unpkg.com/sweetalert/dist/sweetalert.min.js"></script>
 <script>
 
-        
+       
+    const search = () => {
+        const searchBox = document.getElementById("search-item").value.toUpperCase()
+        const storeItems = document.getElementById("product-list")
+        const product = document.querySelectorAll(".product")
+        const pname = document.getElementsByTagName("h3")
 
-    // Function to handle addition of a product to the cart on the frontend
+        for(let i=0;i<pname.length;i++){
+            let match = product[i].getElementsByTagName('h3')[0]
+
+            if(match){
+                let textValue = match.textContent || match.innerHTML
+                if(textValue.toUpperCase().indexOf(searchBox) > -1){
+                    product[i].style.display = ""
+                }else{
+                    product[i].style.display = "none"
+                }
+            }
+        }
+    }
+    
+
+
     const addToCart = async (productId,quantity) => {
         try {
             const quantity = 1
@@ -485,4 +513,6 @@
     };
     
     
+    
+
 </script>

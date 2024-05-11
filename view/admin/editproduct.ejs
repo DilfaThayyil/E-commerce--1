@@ -38,6 +38,14 @@
           opacity: 0;
           cursor: pointer;
       }
+      .form-control{
+        background-color: #fff;
+        color: #2A3038;
+      }
+      .form-control:focus {
+        background-color: #fff;
+        color: #2A3038;
+      }
   
   </style>
 
@@ -120,16 +128,16 @@
                     <form class="forms-sample" method="post" action="/admin/editProductSubmit/<%=product._id%>" >
                       <div class="form-group">
                           <label for="exampleInputUsername1">Product name</label>
-                          <input type="text" class="form-control" id="productname" placeholder="Product name" value="<%=product.Name%>" name="name">
+                          <input type="text" class="form-control" id="productname" placeholder="Product name" value="<%=product.Name%>" name="name" >
                       </div>
                       <div class="form-group">
                           <label for="exampleInputConfirmPassword1">Category</label>
-                          <select class="form-control " id="productCategory" name="category" required>
+                          <select class="form-control "  id="productCategory" name="category" required>
                             <% category.forEach(category => { %>
                               <option value="<%= category._id %>" <%= (category._id.toString() === product.Category.toString()) ? 'selected' : '' %>><%= category.Name %></option>
                             <% }); %>
                           </select>
-                                                </div>
+                      </div>
                       <input type="text" id="proid" value="<%=product._id%>" hidden>
                       <div class="form-group">
                           <label for="exampleInputEmail1">Price</label>
@@ -140,7 +148,7 @@
                         <input type="number" class="form-control" id="dis" min="1" placeholder="Discount Price" value="<%=product.DiscountPrice%>" name="discountprice">
                     </div>
                       <div class="form-group">
-                          <label for="exampleInputPassword1">Quantity</label>
+                          <label for="exampleInputPassword1">Stock</label>
                           <input type="number" class="form-control" id="qnt" min="1"  placeholder="Quantity" value="<%=product.Quantity%>" name="quantity">
                       </div>
                       <div class="form-group">
@@ -157,7 +165,7 @@
                     </div>
                     <div id="error" style="color: red; display: none;">Please fill out all required fields</div>
 
-                      <button type="submit" class="btn btn-primary mr-2">Submit</button>
+                      <button type="submit" class=" btn-primary mr-2">Submit</button>
                   
                   </form>
                   <form action="/admin/update/<%= product._id %>" method="POST" enctype="multipart/form-data">

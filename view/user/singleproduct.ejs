@@ -66,19 +66,22 @@
                                     
                                     <div class="product-content">
                                         <p><%=product.Description%></p>
+
+                                        <div>
+                                            <p style="color: #c96;">Category : <a ><%=product.Category.Name%></a></p>
+                                        </div>
+
+                                        <div class="">
+                                            <label for="qty" style="color: #c96;">Qty:</label>
+                                            <div class="product-details-quantity">
+                                                <input type="number" id="qty" class="form-control" value="1" min="1" max="<%=product.Quantity%>" step="1" data-decimals="0" required>
+                                            </div><!-- End .product-details-quantity -->
+                                        </div><br>
                                     </div><!-- End .product-content -->
 
-                                    <div>
-                                        <p>Category : <a ><%=product.Category.Name%></a></p>
-                                        <p><%=product.Category.Description%></p>
-                                    </div>
+                                    
 
-                                    <div class=" mt-5">
-                                        <label for="qty">Qty:</label>
-                                        <div class="product-details-quantity">
-                                            <input type="number" id="qty" class="form-control" value="1" min="1" max="<%=product.Quantity%>" step="1" data-decimals="0" required>
-                                        </div><!-- End .product-details-quantity -->
-                                    </div><br>
+                                    
 
                                     <div class="product-details-action">
                                         

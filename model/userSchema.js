@@ -12,6 +12,10 @@ const user = new mongoose.Schema({
         type:Number,
     
     },
+    resetToken:{
+        type:String,
+        default:null
+    },
     password:{
         type:String,
         required:true

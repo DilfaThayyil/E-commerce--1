@@ -1,4 +1,13 @@
 <%-include('../partials/adminHeader')%>
+<style>
+.swal2-modal .swal2-title{
+  color: green;
+}
+.swal2-modal .swal2-text{
+  color: black;
+}
+</style>
+
     <div class="container-scroller">
       <!-- partial:partials/_sidebar.html -->
       <nav class="sidebar sidebar-offcanvas" id="sidebar">
@@ -96,7 +105,7 @@
                             <td><%=category.Name%></td>
                             <td><%=category.Description%></td>
                             <td><%=category.Status%></td>
-                            <td><a href="/admin/editcategory/<%=category._id%>">Edit</a></td>
+                            <td><a class="btn btn-primary mr-2" href="/admin/editcategory/<%=category._id%>">Edit</a></td>
                             <%if(category.Status=='active'){%>
                             <td><a class="btn btn-danger" onclick="confirmBlock('<%= category._id %>')">block</button></td>
                             <%}else{%>

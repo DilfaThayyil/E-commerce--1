@@ -31,11 +31,11 @@
                                     <i class="icon-long-arrow-right"></i>
                                 </button>
                                 
-                                <div id="timer">Time remaining: 120 seconds</div>
+                                <div id="timer"></div>
                              
                                 <!-- Existing error messages -->
                                 <div>
-                                    <p id="otpSentMessage" style="color: green;"></p>
+                                    <p id="otpSentMessage" style="color: red;"></p>
                                     <p id="timer"></p>
                                     <p class="text-danger" id="error-message">
                                         <% if (msg) { %>
@@ -52,10 +52,7 @@
 
                             </div><!-- End .form-footer -->
                         </form>
-                        <button style="display: none;"  id="resend" class="btn btn-outline-primary-2">
-                            <span onclick="resend()">Resend</span>
-                            <i class="icon-long-arrow-right"></i>
-                        </button>
+                        <button style="display: none;"  id="resend" class="btn btn-outline-primary-2" onclick="resend()">Resend<i class="icon-long-arrow-right"></i></button>
                         <!-- ... (Existing social login buttons) ... -->
                     </div><!-- .End .tab-pane -->
          </div><!-- End .tab-content -->
@@ -74,22 +71,22 @@
       input.addEventListener('input', (event) => {
           const target = event.target;
           const value = target.value.trim();
-          if (/^\d$/.test(value)) { // Check if input is a single digit
+          if (/^\d$/.test(value)) { 
               if (index < inputs.length - 1) {
                   inputs[index + 1].focus();
               }
-          } else if (value === '') { // Check if input is cleared
+          } else if (value === '') { 
               if (index > 0) {
                   inputs[index - 1].focus();
               }
-          } else { // If input is not a single digit, remove non-digit characters
+          } else { 
               target.value = value.replace(/\D/g, '');
           }
       });
 
       input.addEventListener('keydown', (event) => {
           const target = event.target;
-          if (event.keyCode === 8 && target.value.length === 0) { // Backspace key
+          if (event.keyCode === 8 && target.value.length === 0) { 
               if (index > 0) {
                   inputs[index - 1].focus();
               }
@@ -126,7 +123,7 @@
 
 
     document.getElementById('otpForm').addEventListener('submit', async function (event) {
-    event.preventDefault(); // Prevent default form submission
+    event.preventDefault(); 
     let digit1=document.getElementById('digit1').value
     let digit2=document.getElementById('digit2').value
     let digit3=document.getElementById('digit3').value

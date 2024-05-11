@@ -6,6 +6,7 @@ const User=require('../model/userSchema')
 const path=require('path')
 const multer=require('multer')
 const fs = require('fs')
+const Order = require('../model/orderSchema')
 require('dotenv').config()
 
 
@@ -43,6 +44,15 @@ const login = (req,res)=>{
     }
 }
 
+const logout = async(req,res)=>{
+    try{
+         req.session.admin = null
+         res.redirect('/admin')
+    }catch(err){
+        console.log(err)
+    }
+}
+
 const loginSubmit = async(req,res)=>{
     try{
         const {email,password} = req.body
@@ -64,14 +74,34 @@ const loginSubmit = async(req,res)=>{
     }
 }
 
-const allProducts = async(req,res)=>{
-    try{
-        const products = await Product.find().populate('Category')
-        res.render('allproducts',{products})
-    }catch(err){
-        console.log(err);
+
+
+const allProducts = async (req, res) => {
+    try {
+        const admin = req.session.admin;
+        const perPage = 5;
+        const page = parseInt(req.query.page) || 1;
+        const totalProducts = await Product.countDocuments();
+        const totalPages = Math.ceil(totalProducts / perPage);
+  
+        const products = await Product.find()
+            .populate({
+                path:"Category",
+                model:"Category"
+            })
+            .skip((page - 1) * perPage)
+            .limit(perPage)
+            .exec();
+  
+        res.render('allproducts', { products, admin, totalPages, currentPage: page });
+    } catch (err) {
+        console.error(err);
+        res.send('Internal Server Error');
     }
-}
+  };
+  
+
+
 
 const allUsers = async(req,res)=>{
     try{
@@ -94,11 +124,109 @@ const category = async(req,res)=>{
 
 const allOrders = async(req,res)=>{
     try{
-        res.render('allorders')
-    }catch(err){
-        console.log(err);
-    }
+    
+      const perPage = 2; 
+      const page = parseInt(req.query.page) || 1; 
+
+      const totalOrders = await Order.countDocuments();
+      const totalPages = Math.ceil(totalOrders / perPage);
+
+      const orders = await Order.find()
+          .populate({
+              path: 'products.products',
+              model: 'Products',
+            })
+          .populate({
+                path: "userid",
+                model: "User"
+            })    
+          .skip((page - 1) * perPage)
+          .limit(perPage)
+          .exec();
+
+      res.render('allorders', { orders, totalPages, currentPage: page });
+  } catch (err) {
+      console.error(err);
+      res.status(500).send('Internal Server Error');
+  }
 }
+
+
+    const orderDetails=async(req,res)=>{
+        try{
+            const { orderId, productId } = req.params;
+            const order = await Order.findById(orderId).populate('userid')
+            if (!order) {
+                return res.json({ message: 'Order not found' });
+            }
+            const product = order.products.find(prod => prod.products.equals(productId));
+            if (!product) {
+                return res.status(404).json({ message: 'Product not found in order' });
+            }
+            const user = await User.findById(order.userid);
+            const productDetails = await Product.findById(productId);
+            
+            res.render('orderDetails', {order,product,user,productDetails}); 
+        } catch (error) {
+            console.error('Error fetching order details:', error);
+        }
+    }
+
+
+
+const cancelOrder = async (req, res) => {
+    const orderId = req.params.orderId;
+    try {
+        const order = await Order.findById(orderId);
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+        order.products.forEach(product => {
+            if (product.Status !== 'cancelled') {
+                product.Status = 'cancelled';
+            }
+        });
+        await order.save();
+        res.status(200).json({ message: 'Order cancelled successfully' });
+    } catch (error) {
+        console.error('Error cancelling order:', error);
+        res.status(500).json({ message: 'Internal Server Error' });
+    }
+};
+
+
+const approveReturnRequest = async (req, res) => {
+    const { orderId, productId } = req.params;
+
+    try {
+        const order = await Order.findById(orderId);
+        if (!order) {
+            return res.status(404).json({ message: 'Order not found' });
+        }
+
+        const product = order.products.find(p => p._id.equals(productId));
+
+        if (!product) {
+            return res.status(404).json({ message: 'Product not found in order' });
+        }
+
+        product.Status = 'returned';
+        
+        const updatequantity=await Product.findById(product.products)
+        updatequantity.Quantity+=product.quantity
+
+        await updatequantity.save()
+        await order.save();
+
+
+        res.status(200).json({ success: true, message: 'Return request approved successfully' });
+    } catch (error) {
+        console.error('Error approving return request:', error.message);
+        res.status(500).json({ success: false, message: 'Internal server error' });
+    }
+};
+
+
 
 const editProduct = async(req,res)=>{
     try{
@@ -111,31 +239,7 @@ const editProduct = async(req,res)=>{
     }
 }
 
-// const editProductSubmit = async (req, res) => {
-//     try {
-//         const product_id = req.params.id;
-//         const updatedproduct = await Product.findOne({ _id: product_id });
-//         if (updatedproduct) {
 
-//             const { name, price, category,quantity, description } = req.body;
-
-//             await Product.findByIdAndUpdate(product_id, {
-//                 Name: name,
-//                 Price: price,
-//                 category:category,
-//                 Quantity: quantity,
-//                 Description: description
-//             });
-//             console.log("Product updated successfully!");
-//             res.redirect('/admin/allproducts');
-//         } else {
-//             console.log("Product not found!");
-//             res.redirect('/admin/allproducts');
-//         }
-//     } catch (error) {
-//         console.error("Error updating product:", error);
-//     }
-// };
 
 
 
@@ -341,7 +445,6 @@ const blockCategory = async (req, res) => {
 
 const editCategory= async (req,res)=>{
     try{
-    //   const admin=req.session.admin
       const category_id=req.params.id
       const category  = await Category.findOne({_id:category_id})
       const err=req.flash('error')
@@ -388,28 +491,20 @@ const imagedelete = async (req, res) => {
     const productid = req.params.proid;
     const imagePath = path.join('public', 'uploads', imgid);
   
+    const product = await Product.findOne({ _id: productid });
   
-      // Fetch the product document
-      const product = await Product.findOne({ _id: productid });
-  
-      if (!product) {
-        console.error('Product not found:', productid);
+    if (!product) {
         return res.status(404).send('Product not found');
       }
   
-      // Check if there is only one image remaining
       if (product.Images.length <= 1) {
-        console.error('Cannot delete the last image.');
         return res.status(400).send('Cannot delete the last image.');
       }
   
-      // Delete the image file asynchronously
       await fs.promises.unlink(imagePath);
   
-      // Remove the image reference from the database
       product.Images.splice(index, 1);
   
-      // Save the updated product document
       await product.save();
   
       res.status(200).send('Image deleted successfully');
@@ -418,7 +513,38 @@ const imagedelete = async (req, res) => {
       res.status(500).send('Internal Server Error');
     }
   };
+
+
+  const updateStatus = async(req,res)=>{
+    try{
+        const { status, orderId, productId } = req.body
+        const order = await Order.findById(orderId)
+        if (!order) {
+            return res.status(404).json({ error: 'Order not found' });
+        }
+
+        const product = order.products.find(prod => prod.products._id.toString() === productId);
+
+        if (!product) {
+            return res.status(404).json({ error: 'Product not found in order' });
+        }
+        
+        product.Status = status;
+        await order.save();
+
+        return res.status(200).json({ message: 'Status updated successfully', order });
+
+        
+
+    }catch(err){
+        console.log(err);
+    }
+  }
+
+
+
   
+
   
 
 
@@ -426,6 +552,7 @@ const imagedelete = async (req, res) => {
 module.exports = {
     dashboard,
     login,
+    logout,
     allProducts,
     allUsers,
     category,
@@ -444,5 +571,9 @@ module.exports = {
     editCategory,
     editCategorySubmit,
     imagedelete,
-    loginSubmit
+    loginSubmit,
+    cancelOrder,
+    updateStatus,
+    orderDetails,
+    approveReturnRequest
 }

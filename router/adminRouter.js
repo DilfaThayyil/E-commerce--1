@@ -2,14 +2,16 @@ const express= require('express')
 const adminRouter = express()
 const adminController = require('../controller/adminController')
 const multer=require('multer')
-// const adminMiddleware = require('../middleware/admin')
+const adminMiddleware = require('../middleware/admin')
 adminRouter.set('views','./view/admin')
-
 const Products=require('../model/products')
+
+
+
 
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'public/uploads'); // Set your desired upload directory
+        cb(null, 'public/uploads'); 
     },
     filename: function (req, file, cb) {
         const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
@@ -18,28 +20,22 @@ const storage = multer.diskStorage({
   });
   
   const upload = multer({ storage: storage });
-  // Route to handle adding a new image to a product
   adminRouter.post('/addImage', upload.single('image'), async (req, res) => {
     try {
-        const productId = req.body.productId; // Assuming you're passing the productId in the request body
-  
-        // Find the product by ID
+        const productId = req.body.productId; 
         const product = await Products.findById(productId);
         if (!product) {
             return res.status(404).json({ error: 'Product not found' });
         }
   
-        // Add the new image to the product's Images array
         if (req.file) {
             product.Images.push(req.file.filename);
         } else {
             return res.status(400).json({ error: 'No image file provided' });
         }
   
-        // Save the updated product
         await product.save();
   
-        // Optionally, send a success response
         res.json({ success: true, message: 'Image added to the product successfully' });
     } catch (error) {
         console.error(error);
@@ -51,7 +47,7 @@ const storage = multer.diskStorage({
 
 
 adminRouter.get('/',adminController.dashboard)
-adminRouter.get('/login',adminController.login)
+adminRouter.get('/login',adminMiddleware.isLoged,adminController.login)
 adminRouter.post('/loginsubmit',adminController.loginSubmit)
 adminRouter.get('/allproducts',adminController.allProducts)
 adminRouter.get('/allusers',adminController.allUsers)
@@ -71,6 +67,12 @@ adminRouter.post('/editcategorysubmit/:id',adminController.editCategorySubmit)
 adminRouter.get('/editproduct/:id',adminController.editProduct)
 adminRouter.post('/editProductSubmit/:id',adminController.editProductSubmit)
 adminRouter.post('/deleteimage/:imgid/:index/:proid',adminController.imagedelete)
+adminRouter.post('/cancelOrder/:orderId',adminController.cancelOrder);
+adminRouter.post('/updateStatus',adminController.updateStatus)
+adminRouter.get('/orderDetails/:orderId/:productId',adminController.orderDetails)
+adminRouter.post('/approveReturnRequest/:orderId/:productId',adminController.approveReturnRequest)
+
+
 
 
 module.exports=adminRouter

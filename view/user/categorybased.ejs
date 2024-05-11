@@ -27,28 +27,36 @@
                             <a href="#" class="sidebar-toggler"><i class="icon-bars"></i>Filters</a>
         				</div><!-- End .toolbox-left -->
 
-                        <div class="toolbox-center">
+                        <div class="search-container">
+                            <form>
+                                <i class="fas fa-search"></i>
+                                <input type="text" name="" id="search-item" placeholder="Search products"
+                                onkeyup="search()">
+                            </form>
+                        </div><!-- End .search-container -->
+
+                        <div class="toolbox-center" hidden>
                             <div class="toolbox-info">
                                 Showing <span>12 of 56</span> Products
                             </div><!-- End .toolbox-info -->
                         </div><!-- End .toolbox-center -->
 
         				<div class="toolbox-right">
-        					<div class="toolbox-sort">
-        						<label for="sortby">Sort by:</label>
-        						<div class="select-custom">
-									<select name="sortby" id="sortby" class="form-control">
-										<option value="popularity" selected="selected">Most Popular</option>
-										<option value="rating">Most Rated</option>
-										<option value="date">Date</option>
+        					<div class="filter-condition" >
+        						<span>Sort by</span>
+									<select name="sortBy" id="select" >
+                                        <option value="default">Default</option>
+										<option value="priceLowToHigh">price:low to high</option>
+                                        <option value="priceHighToLow">price:high to low</option>
+                                        <option value="nameAtoZ">Name: A to Z</option>
+                                        <option value="nameZtoA">Name:Z to A</option>
 									</select>
-								</div>
         					</div><!-- End .toolbox-sort -->
         				</div><!-- End .toolbox-right -->
         			</div><!-- End .toolbox -->
 
                     <div class="products">
-                        <div class="row">
+                        <div class="row" id="product-list">
 
                             <%totalProducts.forEach((product)=>{%>
 
@@ -104,7 +112,7 @@
                         <div class="sidebar-filter-wrapper">
                             <div class="widget widget-clean">
                                 <label><i class="icon-close"></i>Filters</label>
-                                <a href="#" class="sidebar-filter-clear">Clean All</a>
+                                <a href="" class="sidebar-filter-clear" onclick="clearCategory()">Clean All</a>
                             </div><!-- End .widget -->
                             <div class="widget widget-collapsible">
                                 <h3 class="widget-title">
@@ -138,9 +146,121 @@
     <!-- Mobile Menu -->
     <div class="mobile-menu-overlay"></div><!-- End .mobil-menu-overlay -->
 
-    
 
     
 
     <%-include('../partials/footer')%>
     <%-include('../partials/footerbar')%>
+
+    <script>
+
+
+    function search() {
+        const searchBox = document.getElementById("search-item").value.trim().toUpperCase();
+        const products = document.querySelectorAll(".product");
+        products.forEach((product) => {
+            const productName = product.querySelector("h3").textContent.trim().toUpperCase();
+            if (productName.includes(searchBox)) {
+                product.style.display = "";
+            } else {
+                product.style.display = "none";
+            }
+        });
+        const noResultsMessage = document.getElementById("no-results-message");
+        if (!products || [...products].every((product) => product.style.display === "none")) {
+            if (noResultsMessage) {
+                noResultsMessage.style.display = "block";
+            } else {
+                const messageContainer = document.createElement("div");
+                messageContainer.id = "no-results-message";
+                messageContainer.textContent = "No results found.";
+                document.getElementById("product-list").appendChild(messageContainer);
+            }
+        } else {
+            if (noResultsMessage) {
+                noResultsMessage.style.display = "none";
+            }
+        }
+    }
+
+
+    function clearCategory(){
+        window.location.href = '/allproducts'
+    }
+
+
+
+
+        const productListElement = document.getElementById('product-list');
+    const selectElement = document.getElementById('select');
+
+selectElement.addEventListener('change', () => {
+    const sortBy = selectElement.value;
+
+    fetch(`/sortedProductsCat?sortBy=${sortBy}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            console.log('Sorted products:', data);
+            const productList = document.getElementById('product-list');
+            // Clear previous product list
+            productListElement.innerHTML = '';
+
+            // Iterate over fetched products and update HTML
+            data.product.forEach(product => {
+                const productContainer = document.createElement('div');
+                productContainer.classList.add('col-6', 'col-md-4', 'col-lg-4', 'col-xl-3','product-container');
+
+                const productHTML = `
+                    <div class="product">
+                        <figure class="product-media">
+                            <span class="product-label label-new">New</span>
+                            <a href="/product/${product._id}">
+                                <img src="/uploads/${product.Images[0]}" alt="Product image" class="product-image">
+                            </a>
+
+                            <div class="product-action-vertical">
+                                <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
+                            </div><!-- End .product-action -->
+
+                            <div class="product-action action-icon-top">
+                                ${product.Quantity >= 1 ?
+                                    `<a onclick="addToCart('${product._id}')" class="btn-product btn-cart"><span>add to cart</span></a>` :
+                                    `<a href="#" class="btn-product btn-cart"><span>out of stock</span></a>`
+                                }
+                            </div><!-- End .product-action -->
+                        </figure><!-- End .product-media -->
+
+                        <div class="product-body">
+                            <div class="product-cat">
+                                <a href="#">${product.Category.Name}</a>
+                            </div><!-- End .product-cat -->
+                            <h3 class="product-title"><a href="/product/${product._id}">${product.Name}</a></h3><!-- End .product-title -->
+                            <div class="product-price">
+                                ${product.Price}
+                            </div><!-- End .product-price -->
+                            <div class="ratings-container">
+                                <div class="ratings">
+                                    <div class="ratings-val" style="width: 80%;"></div><!-- End .ratings-val -->
+                                </div><!-- End .ratings -->
+                                <span class="ratings-text">(2 Reviews)</span>
+                            </div><!-- End .rating-container -->
+                        </div><!-- End .product-body -->
+                    </div><!-- End .product -->
+                `;
+                productContainer.innerHTML = productHTML;
+
+                productList.appendChild(productContainer);
+            });
+        })
+        .catch(error => {
+            console.error('Error fetching products:', error);
+        });
+});
+
+
+    </script>

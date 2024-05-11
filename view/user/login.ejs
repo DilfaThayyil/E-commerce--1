@@ -51,7 +51,7 @@
 													</span>
 												</div>
 											</div>
-											<div id="error" style="color: red; display: none;">Password must be at least 8 characters long</div>
+											<div id="error" style="color: red; display: none;"></div>
 										</div>										
 									
 										<div class="form-footer">
@@ -78,7 +78,6 @@
 											<div class="col-sm-6">
 								    			<button type="button" class="btn btn-link" data-toggle="modal" data-target="#resetPasswordModal" 
 												 onclick="openResetModal()">Forgot Password?</button>
-
 								    		</div><!-- End .col-6 -->
 								    		<div id="resetPasswordModal" class="modal fade" tabindex="-1" role="dialog" aria-labelledby="resetPasswordModalLabel" aria-hidden="true">
 												<div class="modal-dialog" role="document">
@@ -90,12 +89,13 @@
 															</button>
 														</div>
 														<div class="modal-body">
-															<form id="resetPasswordForm" action="/resetPassword" method="post">
+															<form id="resetPasswordForm" action="/forgotPassword" method="post">
 																<div class="form-group">
 																	<label for="reset-email">Email address</label>
-																	<input type="text" class="form-control" id="reset-email" required>
+																	<input type="text"  name="email" class="form-control" id="reset-email" required>
 																	<small id="reset-email-error" class="form-text text-danger"></small>
 																</div>
+																<div id="resetMessage" class="text-center">Please check your Email</div>
 																<button type="submit" class="btn btn-primary">Submit</button>
 															</form>
 														</div>
@@ -200,7 +200,6 @@
 
 
   <script>
-    // Function to toggle password visibility
     function togglePasswordVisibility() {
         let passwordInput = document.getElementById('register-password-2');
         let toggleIcon = document.getElementById('toggle-icon');
@@ -223,60 +222,55 @@
 
 
 
+  document.addEventListener("DOMContentLoaded", function() {
+	function preventSpace(event) {
+        if (event.keyCode === 32) {
+            event.preventDefault();
+        }
+    }
+	document.getElementById("register-email-2").addEventListener("keydown", preventSpace);
+	document.getElementById("register-password-2").addEventListener("keydown", preventSpace);
 
     document.getElementById("loginForm").addEventListener("submit", function(event) {
         let email = document.getElementById("register-email-2").value.trim();
         let password = document.getElementById("register-password-2").value.trim();
         let errorElement = document.getElementById("error");
 
+		let hasUppercase = /[A-Z]/.test(password);
+        let hasLowercase = /[a-z]/.test(password);
+        let hasNumber = /\d/.test(password);
+        let hasSpecialChar = /[!@#$%^&*(),.?":{}|<>]/.test(password);
+
         if (email === "" || password === "") {
             errorElement.innerText = "Email and password are required";
             errorElement.style.display = "block";
-            event.preventDefault(); // Prevent form submission
+            event.preventDefault(); 
+
         } else if (password.length < 8) {
             errorElement.innerText = "Password must be at least 8 characters long";
             errorElement.style.display = "block";
-            event.preventDefault(); // Prevent form submission
+            event.preventDefault(); 
+
+		} else if (!hasUppercase || !hasLowercase || !hasNumber || !hasSpecialChar) {
+            errorElement.innerText = "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character";
+            errorElement.style.display = "block";
+            event.preventDefault();
         } else {
             errorElement.style.display = "none";
+			moveCursorToNextInput(event.target);
         }
     });
+  })  
+  function moveCursorToNextInput(currentInput) {
+        let form = currentInput.closest('form');
+        let inputs = Array.from(form.querySelectorAll('input'));
+        let index = inputs.indexOf(currentInput);
+        let nextInput = inputs[index + 1];
 
-
-
-
-	document.getElementById('resetPasswordForm').addEventListener('submit', function(event) {
-    event.preventDefault();
-    
-    let input = document.getElementById('reset-email').value.trim();
-    let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    let phoneRegex = /^\d{10}$/; // Example: 10-digit phone number
-    
-    let errorElement = document.getElementById('reset-email-error');
-    
-    if (emailRegex.test(input) || phoneRegex.test(input)) {
-        // Input is valid, proceed with password reset logic
-        // You can initiate a request to send reset link/code here
-        console.log('Valid input:', input);
-        // Reset error message if previously shown
-        errorElement.textContent = '';
-    } else {
-        // Invalid input, show error message
-        errorElement.textContent = 'Invalid email address or phone number format';
+        if (nextInput) {
+            nextInput.focus();
+        }
     }
-});
-
-
-
-
-// Function to open reset password modal
-function openResetModal() {
-    let modal = document.getElementById('resetPasswordModal');
-    modal.style.display = 'block';
-	console.log("shi..")
-}
-
-
 
 
 

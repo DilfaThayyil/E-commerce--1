@@ -1,4 +1,9 @@
+
 <%-include('../partials/adminHeader')%>
+
+
+
+
     <div class="container-scroller">
       <!-- partial:partials/_sidebar.html -->
       <nav class="sidebar sidebar-offcanvas" id="sidebar">
@@ -87,7 +92,7 @@
                           <th>Description</th>
                           <th>Price</th>
                           <th>Category</th>
-                          <th>Quantity</th>
+                          <th>Stock</th>
                           <th>Image</th>
                           <th>Status</th>
                           <th>Action</th>
@@ -98,7 +103,33 @@
                         <tr>
                           <td><%= index + 1 %></td>
                           <td><%= product.Name %></td>
-                          <td><%= product.Description %></td>
+                          <td><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal<%=product._id%>">
+                            Show
+                          </button>
+                        </td> 
+
+
+                          <div class="modal fade" id="exampleModal<%=product._id%>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                              <div class="modal-content">
+                                <div class="modal-header">
+                                  <h5 class="modal-title" id="exampleModalLabel">Description</h5>
+                                  <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                  </button>
+                                </div>
+                                <div class="modal-body">
+                                  <%=product.Description %>
+                                </div>
+                                <div class="modal-footer">
+                                  <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                               
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+
+
                           <td><%= product.Price %></td>
                           <td><%= product.Category.Name%></td>
                           <td><%= product.Quantity %></td>
@@ -110,12 +141,12 @@
                           </td>
                          
                           <td><%= product.Status %></td>
-                          <td><a href="/admin/editproduct/<%=product._id%>">Edit</a></td>
+                          <td><a class="btn btn-primary mr-2" href="/admin/editproduct/<%=product._id%>">Edit</a></td>
                           <td>
                             <% if (product.Status === 'active') { %>
-                              <a href="/admin/blockproduct/<%= product._id %>">Block</a>
+                              <a class="btn btn-danger" href="/admin/blockproduct/<%= product._id %>">Block</a>
                             <% } else { %>
-                              <a href="/admin/unblockproduct/<%= product._id %>">Unblock</a>
+                              <a class="btn btn-success" href="/admin/unblockproduct/<%= product._id %>">Unblock</a>
                             <% } %>
                           </td>
                         </tr>
@@ -132,19 +163,45 @@
                   </div>
 
                 </div>
+
+                <nav aria-label="Page navigation" style="margin-left: 30px;">
+                  <ul class="pagination">
+                      <% if (totalPages > 1) { %>
+                          <% if (currentPage > 1) { %>
+                              <li class="page-item">
+                                  <a class="page-link" href="?page=<%= currentPage - 1 %>" aria-label="Previous">
+                                      <span aria-hidden="true">&laquo;</span>
+                                  </a>
+                              </li>
+                          <% } %>
+              
+                          <% for (let i = 1; i <= totalPages; i++) { %>
+                              <li class="page-item <%= currentPage === i ? 'active' : '' %>">
+                                  <a class="page-link" href="?page=<%= i %>"><%= i %></a>
+                              </li>
+                          <% } %>
+              
+                          <% if (currentPage < totalPages) { %>
+                              <li class="page-item">
+                                  <a class="page-link" href="?page=<%= currentPage + 1 %>" aria-label="Next">
+                                      <span aria-hidden="true">&raquo;</span>
+                                  </a>
+                              </li>
+                          <% } %>
+                      <% } %>
+                  </ul>
+              </nav>
+
               </div>
               
               <div id="image-preview-modal" class="modal">
                 <span class="close">&times;</span>
                 <img class="modal-content" id="modal-image">
+              </div>
             </div>
-
-              
-
-            </div>
-
           </div>
           <!-- content-wrapper ends -->
+
           <!-- partial:partials/_footer.html -->
           
           <!-- partial -->
@@ -156,6 +213,10 @@
     <!-- container-scroller -->
     <!-- plugins:js -->
     <%-include('../partials/adminFooter')%>
+
+
+
+  
 
 
 

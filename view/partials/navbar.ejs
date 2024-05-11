@@ -3,7 +3,7 @@
         <div class="container">
             
 
-            <div class="header-right">
+            <div class="header-right" hidden>
                 <ul class="top-menu">
                     <li>
                         <a href="#">Links</a>
@@ -32,29 +32,29 @@
                 <nav class="main-nav">
                     <ul class="menu sf-arrows">
                         <li class="megamenu-container active">
-                            <a href="/" class="sf-with-ul">Home</a>
+                            <a href="/">Home</a>
                         </li>
                         <li>
-                            <a href="/allproducts" class="sf-with-ul">Shop</a>
+                            <a href="/allproducts">Shop</a>
                         </li>
-                        <li>
-                            <a href="/product" class="sf-with-ul">Product</a>
+                        <li >
+                            <a href="/contact">Contact</a>
                         </li>
-                        <li>
-                            <a href="/" class="sf-with-ul">Pages</a>
+                        <li >
+                            <a href="/aboutUs">About Us</a>
                         </li>
-                        <li>
-                            <a href="blog.html" class="sf-with-ul">Blog</a>
+                        <li >
+                            <a href="/userProfile">My Account</a>
                         </li>
-                        <li>
-                            <a href="elements-list.html" class="sf-with-ul">Elements</a>                            
+                        <li hidden>
+                            <a href="elements-list.html">Elements</a>                            
                         </li>
                     </ul><!-- End .menu -->
                 </nav><!-- End .main-nav -->
             </div><!-- End .header-left -->
 
             <div class="header-right">
-                <div class="header-search">
+                <div class="header-search" hidden>
                     <a href="#" class="search-toggle" role="button" title="Search"><i class="icon-search"></i></a>
                     <form action="#" method="get">
                         <div class="header-search-wrapper">
@@ -66,10 +66,19 @@
                 <div class="dropdown cart-dropdown">
                     <a href="/cart" class="dropdown-toggle" role="button" aria-haspopup="true" aria-expanded="false" data-display="static">
                         <i class="icon-shopping-cart"></i>
-                        <span class="cart-count">0</span>
+                        <!-- <span class="cart-count"></span> -->
                     </a>
                 </div><!-- End .cart-dropdown -->
+                <div class="">
+                    <a href="#" class="" role="button" aria-haspopup="true" aria-expanded="false" data-display="static">
+                        <i class="far fa-heart" style="font-size: x-large;margin-left: 15px;margin-top: 6px;"></i>
+                        <span class="wishlist-count"></span>
+                    </a>
+                </div><!-- End .wishlist-dropdown -->
             </div><!-- End .header-right -->
         </div><!-- End .container -->
     </div><!-- End .header-middle -->
 </header><!-- End .header -->
+
+
+

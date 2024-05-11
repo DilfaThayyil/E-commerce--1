@@ -27,7 +27,11 @@
                             <div class="tab-pane fade" id="signin-2" role="tabpanel" aria-labelledby="signin-tab-2"></div>
                             <div class="tab-pane fade show active" id="register-2" role="tabpanel" aria-labelledby="register-tab-2">
                                 <form id="registerForm" action="/registerSubmit" method="post">
-                                    <p id="err" class="text-danger"></p>
+                                    <% if (typeof messages !== 'undefined' && messages.error) { %>
+                                        <div class="alert alert-danger" role="alert">
+                                            <%= messages.error %>
+                                        </div>
+                                    <% } %>
                                     <div class="form-group">
                                         <label for="register-name-2">Name</label>
                                         <input type="text" class="form-control" id="register-name-2" name="name" required>
@@ -90,6 +94,28 @@
 
 <script>
     let err=document.getElementById('err')
+    let inputs = document.querySelectorAll('input');
+    function moveCursorToNextInput(currentInput) {
+        for (let i = 0; i < inputs.length; i++) {
+            if (inputs[i] === currentInput) {
+                let nextInput = inputs[i + 1];
+                if (nextInput) {
+                    nextInput.focus();
+                }
+                break;
+            }
+        }
+    }
+    
+
+    function handleEnterKeyPress(event, input) {
+        if (event.key === "Enter") {
+            event.preventDefault();
+            moveCursorToNextInput(input);
+        }
+    }
+
+
     function togglePasswordVisibility() {
         let passwordInput = document.getElementById('register-password-2');
         let confirmPasswordInput = document.getElementById('confirm-password');
@@ -129,8 +155,11 @@
         let password = event.target.value;
         let passwordError = document.getElementById('password-error');
 
-        if (password.length < 8) {
-            passwordError.textContent = "Password must be at least 8 characters long";
+        let passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        let isValidPassword = passwordRegex.test(password);
+
+        if (!isValidPassword) {
+            passwordError.textContent = "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character";
         } else {
             passwordError.textContent = "";
         }
@@ -161,5 +190,11 @@
             event.preventDefault();
             err.innerHTML="Please fill all the field in the form"
         }
+    });
+
+    inputs.forEach(function(input) {
+        input.addEventListener('keypress', function(event) {
+            handleEnterKeyPress(event, input);
+        });
     });
 </script>
