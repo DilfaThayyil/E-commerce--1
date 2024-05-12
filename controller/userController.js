@@ -43,7 +43,7 @@ const registerSubmit = async (req,res)=>{
         const check = await User.findOne({Email:email})
         if(check){
             const message = "email already exist"
-            req.flash('error',message)
+            req.flash('err',message)
             return res.redirect('/register')
         }else{  
            const bcryptPassword=  await bcrypt.hash(password,10)
@@ -342,10 +342,11 @@ const resetPasswordSubmit=async(req,res)=>{
 const userProfile = async(req,res)=>{
     try{
         const userid = req.session.user
-        const orders = await Order.find({userid:userid}).populate({
+        let orders = await Order.find({userid:userid}).populate({
             path:"products.products",
             model:"Products"
         })
+        orders = orders.sort((a, b) => b.date - a.date)
         const user = await User.findOne({_id:userid})
         res.render('profile',{orders,user})
     }catch(err){
@@ -440,16 +441,16 @@ const changePassword = async (req, res) => {
         console.log(req.body);
         const userId = req.session.user;
         const user = await User.findOne({ _id: userId });
-
+        console.log(user);
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
 
         const passwordMatch = await bcrypt.compare(currentPassword,user.password);
+        console.log(passwordMatch);
         if (!passwordMatch) {
             return res.status(400).json({ error: "Incorrect current password" });
         }
-
         const hashedNewPassword = await bcrypt.hash(newPassword, 10);
 
         user.password = hashedNewPassword;

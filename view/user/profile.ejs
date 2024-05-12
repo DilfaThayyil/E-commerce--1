@@ -121,7 +121,7 @@
 																						<h4 class="mb-3 product-price" > ₹ <%= product.total %> <span class="small text-muted"> </span></h4>
 																					</div>
 																					<div>
-																						<img class="align-self-center img-fluid" src="/uploads/<%=product.products.Images[0]%>" width="50">
+																						<a href="/singleproduct/<%=product._id%>"><img class="align-self-center img-fluid" src="/uploads/<%=product.products.Images[0]%>" width="50"></a>
 																					</div>
 																				</div>
 																			<% }); %>
@@ -173,7 +173,7 @@
 														<p><strong>City : </strong><%=Address.city%></p>
 														
 
-														<div class="mt-5">
+														<div class="">
 															<button class=" edit-button" data-toggle="modal" data-target="#editAddressModal<%=Address._id%>">
 																<i class="icon-edit"></i> Edit </button>
 															<a href="#" class="delete-button" onclick="removeAddress('<%=Address._id%>')">
@@ -257,39 +257,46 @@
 													</div>
 													<div class="modal-body mx-3">
 													  <div class="md-form mb-5">
-														<input type="text" id="name" class="form-control validate" name="name">
 														<label data-error="wrong" data-success="right" for="formname">Name</label>
+														<input type="text" id="formname" class="form-control validate" name="name">
+														<span id="nameError" class="text-danger"></span>
 													  </div>
-					
+						
 													  <div class="md-form mb-5">
-														<input type="text" id="phone" class="form-control validate" name="phone">
 														<label data-error="wrong" data-success="right" for="formphone">Phone</label>
+														<input type="text" id="formphone" class="form-control validate" name="phone">
+														<span id="phoneError" class="text-danger"></span>
 													  </div>
-					
+						
 													  <div class="md-form mb-5">
-														<input type="text" id="email" class="form-control validate" name="email">
 														<label data-error="wrong" data-success="right" for="formemail">Email</label>
+														<input type="text" id="formemail" class="form-control validate" name="email">
+														<span id="emailError" class="text-danger"></span>
 													  </div>
-					
+						
 													  <div class="md-form mb-5">
-														<input type="text" id="address" class="form-control validate" name="address">
 														<label data-error="wrong" data-success="right" for="formaddress">Address</label>
+														<input type="text" id="formaddress" class="form-control validate" name="address">
+														<span id="addressError" class="text-danger"></span>
 													  </div>
 													  <div class="md-form mb-5">
-														<input type="text" id="pincode" class="form-control validate" name="pincode">
 														<label data-error="wrong" data-success="right" for="formpincode">Pincode</label>
+														<input type="text" id="formpincode" class="form-control validate" name="pincode">
+														<span id="pincodeError" class="text-danger"></span>
 													  </div>
-					
+						
 													  <div class="md-form mb-5">
-														<input type="text" id="state" class="form-control validate" name="state">
 														<label data-error="wrong" data-success="right" for="formstate">State</label>
+														<input type="text" id="formstate" class="form-control validate" name="state">
+														<span id="stateError" class="text-danger"></span>
 													  </div>
-					
+						
 													  <div class="md-form mb-5">
-														<input type="text" id="city" class="form-control validate" name="city">
 														<label data-error="wrong" data-success="right" for="formcity">City</label>
+														<input type="text" id="formcity" class="form-control validate" name="city">
+														<span id="cityError" class="text-danger"></span>
 													  </div>
-					
+						
 													</div>
 													<div class="modal-footer d-flex justify-content-center">
 													  <button type="submit" class="btn btn-primary">Submit</button>
@@ -349,16 +356,15 @@
 <script>
 
 function isPasswordStrong(password) {
-        // Regular expression for strong password: at least 8 characters, at least one uppercase letter, one lowercase letter, one number, and one special character
-        var strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        let strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
         return strongPasswordRegex.test(password);
     }
 
     function changePassword(){
-        var newPassword = document.getElementById("newpassword").value;
-        var confirmPassword = document.getElementById("confirmpassword").value;
+        let newPassword = document.getElementById("newpassword").value;
+        let confirmPassword = document.getElementById("confirmpassword").value;
 		let currentpassword=document.getElementById('current-password').value
-        var passwordValidationMessage = document.getElementById("passwordValidationMessage");
+        let passwordValidationMessage = document.getElementById("passwordValidationMessage");
 		let err=document.getElementById('errorMessage')
 		if(newPassword!==confirmPassword){
 			err.innerHTML=" Both Password Not Match"
@@ -594,74 +600,90 @@ function isPasswordStrong(password) {
 }
 
 
-	function validateForm() {
+function validateForm() {
+        let name = document.getElementById("formname").value;
+        let phone = document.getElementById("formphone").value;
+        let email = document.getElementById("formemail").value;
+        let address = document.getElementById("formaddress").value;
+        let pincode = document.getElementById("formpincode").value;
+        let state = document.getElementById("formstate").value;
+        let city = document.getElementById("formcity").value;
 
-		const name = document.getElementById('name').value;
-        const phone = document.getElementById('phone').value;
-        const email = document.getElementById('email').value;
-        const address = document.getElementById('address').value; 
-        const pincode = document.getElementById('pincode').value;
-        const state = document.getElementById('state').value;
-        const city = document.getElementById('city').value;
+        document.getElementById("nameError").innerText = "";
+        document.getElementById("phoneError").innerText = "";
+        document.getElementById("emailError").innerText = "";
+        document.getElementById("addressError").innerText = "";
+        document.getElementById("pincodeError").innerText = "";
+        document.getElementById("stateError").innerText = "";
+        document.getElementById("cityError").innerText = "";
 
-        resetErrorMessages();
+        let isValid = true;
 
-        if (name.value.length < 5) {
-            displayErrorMessage(name, "Name must have at least 5 characters.");
-            return false;
+        if (name === "") {
+            document.getElementById("nameError").innerText = "Name is required";
+            isValid = false;
         }
 
-        if (phone.value.length < 5) {
-            displayErrorMessage(phone, "Phone must have at least 10 characters");
-            return false;
+        if (phone === "") {
+            document.getElementById("phoneError").innerText = "Phone is required";
+            isValid = false;
         }
 
-        if (email.value.length < 5 || !isValidEmail(email.value)) {
-            displayErrorMessage(email, "Email must have at least 5 characters.");
-            return false;
+        if (email === "") {
+            document.getElementById("emailError").innerText = "Email is required";
+            isValid = false;
+        }else if (!validateEmail(email)) {
+            document.getElementById("emailError").innerText = "Invalid email format";
+            isValid = false;
         }
 
-        if (address.value.length < 5) {
-            displayErrorMessage(address, "Address code must have at least 5 characters.");
-            return false;
+        if (address === "") {
+            document.getElementById("addressError").innerText = "Address is required";
+            isValid = false;
         }
 
-        if (pincode.value.length < 5) {
-            displayErrorMessage(pincode, "Pincode number must have at least 5 characters.");
-            return false;
+        if (pincode === "") {
+            document.getElementById("pincodeError").innerText = "Pincode is required";
+            isValid = false;
         }
 
-        if (state.value.length < 5 ) {
-            displayErrorMessage(state, "State must have at least 3 characters and be valid.");
-            return false;
+        if (state === "") {
+            document.getElementById("stateError").innerText = "State is required";
+            isValid = false;
         }
 
-        if (city.value.length < 5) {
-            displayErrorMessage(city, "City must have at least 3 characters.");
-            return false;
+        if (city === "") {
+            document.getElementById("cityError").innerText = "City is required";
+            isValid = false;
         }
 
-        return true;
+
+        return isValid;
     }
 
-	function isValidEmail(email) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-    }
+    function validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
 
-	function displayErrorMessage(element, message) {
-        const errorMessage = document.createElement("div");
-        errorMessage.className = "text-danger";
-        errorMessage.innerHTML = message;
-        element.parentNode.appendChild(errorMessage);
-    }
+    document.getElementById("formphone").addEventListener("input", function(event) {
+        let input = this.value.replace(/\D/g, ''); 
+        this.value = input; 
+    });
 
-    function resetErrorMessages() {
-        const errorMessages = document.querySelectorAll(".text-danger");
-        errorMessages.forEach(function (errorMessage) {
-            errorMessage.parentNode.removeChild(errorMessage);
-        });
-    }
+    $('input').keydown(function(event) {
+        if (event.keyCode == 13) {
+            event.preventDefault();
+            var inputs = $(this).closest('form').find(':input');
+            var idx = inputs.index(this);
+            if (idx == inputs.length - 1) {
+                inputs[0].select();
+            } else {
+                inputs[idx + 1].focus();
+            }
+        }
+    });
+
 
 
 	function removeAddress(addressid){
@@ -692,8 +714,10 @@ function isPasswordStrong(password) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
             console.log('Address removed successfully');
-            reloadAddressTab();
-        })
+            
+        }).then(()=>{
+			window.location.reload()
+		})
         .catch(error => {
             console.error('Error removing address:', error);
         });

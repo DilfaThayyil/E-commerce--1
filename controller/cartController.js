@@ -134,7 +134,7 @@ const checkout = async (req,res)=>{
 const addressSubmit = async(req,res)=>{
     try{
         const {name,phone,email,address,pincode,state,city} = req.body
-        
+        console.log(req.body)
         const userid = req.session.user
         const user = await User.findById(userid)
         

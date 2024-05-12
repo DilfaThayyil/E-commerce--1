@@ -83,46 +83,64 @@
       <!-- partial -->
       <div class="main-panel">
         <div class="content-wrapper">
-          <div class="col-md-12 grid-margin stretch-card">
-            <div class="card">
-              <div class="card-body">
-                <h4 class="card-title">Add Category</h4>
-                
-                <form class="forms-sample" id="categoryForm" method="post" action="/admin/addCategorySubmit">
-                  <div class="form-group">
-                    <label for="exampleInputUsername1">Category name</label>
-                    <input type="text" class="form-control" id="categoryName" placeholder="Category name" name="name">
-                  </div>
-                  
-                  
-                  <div class="form-group">
-                    <label for="exampleInputConfirmPassword1">Description</label>
-                    <input type="text" class="form-control" id="dec" placeholder="Description" name="description">
-                  </div>
-                  <button type="submit" class="btn btn-primary mr-2">Submit</button>
-                  <div id="error" style="color: red; display: none;">Category name and description cannot be empty</div>
-                </form>
-              </div>
+            <div class="col-md-12 grid-margin stretch-card">
+                <div class="card">
+                    <div class="card-body">
+                        <h4 class="card-title">Add Category</h4>
+    
+                        <form class="forms-sample" id="categoryForm" method="post" action="/admin/addCategorySubmit">
+                          
+                            <div class="form-group">
+                                <label for="exampleInputUsername1">Category name</label>
+                                <input type="text" class="form-control" id="categoryName" placeholder="Category name" name="name">
+                                <span id="name-error" style="color: red;"></span>
+                            </div>
+    
+    
+                            <div class="form-group">
+                                <label for="exampleInputConfirmPassword1">Description</label>
+                                <input type="text" class="form-control" id="dec" placeholder="Description" name="description">
+                                <span id="description-error" style="color: red;"></span>
+                            </div>
+                            <button type="submit" class="btn btn-primary mr-2">Submit</button>
+                            <% if (typeof messages !== 'undefined' && messages.error) { %>
+                              <div class="text text-danger" role="alert">
+                                  <%= messages.error %>
+                              </div>
+                          <% } %>
+                        </form>
+                    </div>
+                </div>
             </div>
-          </div>
-          </div>
         </div>
+    </div>
 </div>
 
 <%-include('../partials/adminFooter')%>
 
 
 <script>
-  document.getElementById("categoryForm").addEventListener("submit", function(event) {
-      let categoryName = document.getElementById("categoryName").value.trim();
-      let categoryDescription = document.getElementById('dec').value.trim();
-      let errorElement = document.getElementById('error');
+  document.addEventListener("DOMContentLoaded", function() {
+      let form = document.getElementById('categoryForm');
+      let errorDiv = document.getElementById('error');
 
-      if (categoryName === "" || categoryDescription === "") {
-          errorElement.style.display = 'block'; // Show error message
-          event.preventDefault(); // Prevent form submission
-      } else {
-          errorElement.style.display = 'none'; // Hide error message
+      function validateForm(event) {
+          let categoryName = document.getElementById('categoryName').value;
+          let description = document.getElementById('dec').value;
+          let nameError = document.getElementById('name-error');
+          let descriptionError = document.getElementById('description-error');
+
+          nameError.textContent = categoryName.trim() ? "" : "Category name cannot be empty";
+          descriptionError.textContent = description.trim() ? "" : "Description cannot be empty";
+
+          if (!categoryName.trim() || !description.trim()) {
+              event.preventDefault();
+              errorDiv.style.display = "block";
+          } else {
+              errorDiv.style.display = "none";
+          }
       }
+
+      form.addEventListener('submit', validateForm);
   });
 </script>

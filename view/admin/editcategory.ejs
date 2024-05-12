@@ -93,6 +93,7 @@
                     <label for="categoryname">Category name</label>
                     <input type="text" class="form-control" id="categoryName" placeholder="Category name" value="<%=category.Name%>" name="name">
                     <input type="hidden" id="originalCategoryName" value="<%= category.Name %>">
+                    <div id="error" style="color: red; display: none;">Please fill out name field</div>
                   </div>
                   
                   
@@ -102,7 +103,6 @@
                   </div>
                   <button type="submit" class="btn btn-primary mr-2">Submit</button>
                   <button class="btn btn-dark">Cancel</button>
-                  <div id="error" style="color: red; display: none;">Please fill out all required fields</div>
                   <% if(err){%> 
                     <p class="text-danger"><%=err%></p>
                     <% } %>
@@ -117,16 +117,22 @@
 
 <%-include('../partials/adminFooter')%>
 
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
  <script>
+
+
+  
+
+
   // Function to handle form submission
   document.getElementById("editCategoryForm").addEventListener("submit", function(event) {
-      let productName = document.getElementById("categoryName").value.trim();
-      let productPrice = document.getElementById("categoryDescription").value.trim();
+      let categoryName = document.getElementById("categoryName").value.trim();
+      let categoryDescription = document.getElementById("categoryDescription").value.trim();
       
 
-      if (!productName || !productPrice || !productDiscountPrice || !productQuantity || !productDescription || productImages.length === 0) {
-          event.preventDefault(); // Prevent form submission
+      if (!categoryName || !categoryDescription ) {
+          event.preventDefault(); 
           document.getElementById("error").style.display = "block";
           return false;
       } else {

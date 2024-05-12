@@ -35,6 +35,7 @@
                                     <div class="form-group">
                                         <label for="register-name-2">Name</label>
                                         <input type="text" class="form-control" id="register-name-2" name="name" required>
+                                        <span id="name-error" style="color: red;"></span>
                                     </div>
                                     <div class="form-group">
                                         <label for="register-email-2">Your email address *</label>
@@ -44,6 +45,7 @@
                                     <div class="form-group">
                                         <label for="register-mobileNumber-2">Mobile number</label>
                                         <input type="tel" class="form-control" id="register-mobileNumber-2" name="mobileNumber" required>
+                                        <span id="mobile-error" style="color: red;"></span>
                                     </div>
                                     <div class="form-group">
                                         <label for="register-password-2">Password *</label>
@@ -70,12 +72,12 @@
                                     </div>
                                 </form>
                                 <div class="form-choice">
-                                    <p class="text-center">or sign in with</p>
+                                    <p class="text-center">or sign up with</p>
                                     <div class="row">
                                         <div class="col-sm-6">
                                             <a href="/auth/google" class="btn btn-login btn-g">
                                                 <i class="icon-google"></i>
-                                                Login With Google
+                                                Sign up With Google
                                             </a>
                                         </div>
                                     </div>
@@ -93,27 +95,64 @@
 <%-include('../partials/footerbar')%>
 
 <script>
-    let err=document.getElementById('err')
-    let inputs = document.querySelectorAll('input');
-    function moveCursorToNextInput(currentInput) {
-        for (let i = 0; i < inputs.length; i++) {
-            if (inputs[i] === currentInput) {
-                let nextInput = inputs[i + 1];
-                if (nextInput) {
-                    nextInput.focus();
-                }
-                break;
-            }
-        }
-    }
-    
+    document.addEventListener("DOMContentLoaded", function() {
+    let form = document.getElementById('registerForm');
+    let err = document.getElementById('err');
 
-    function handleEnterKeyPress(event, input) {
-        if (event.key === "Enter") {
+    function preventSpace(event) {
+        if (event.keyCode === 32) {
             event.preventDefault();
-            moveCursorToNextInput(input);
         }
     }
+
+    function preventNonNumeric(event) {
+        if (!/[0-9]/.test(event.key)) {
+            event.preventDefault();
+        }
+    }
+
+    let inputs = document.querySelectorAll('input[type=text], input[type=email], input[type=tel], input[type=password]');
+
+    inputs.forEach(function(input) {
+        input.addEventListener('keypress', preventSpace);
+    });
+
+    let mobileNumberInput = document.getElementById('register-mobileNumber-2');
+    mobileNumberInput.addEventListener('keypress', preventNonNumeric);
+
+    function validateForm(event) {
+        let name = document.getElementById('register-name-2').value;
+        let email = document.getElementById('register-email-2').value;
+        let mobileNumber = document.getElementById('register-mobileNumber-2').value.replace(/\D/g, ''); // Remove non-numeric characters
+        let password = document.getElementById('register-password-2').value;
+        let confirmPassword = document.getElementById('confirm-password').value;
+        let nameError = document.getElementById('name-error');
+        let emailError = document.getElementById('email-error');
+        let mobileError = document.getElementById('mobile-error');
+        let passwordError = document.getElementById('password-error');
+        let confirmPasswordError = document.getElementById('confirm-password-error');
+
+        let nameValid = name.length >= 3 && !/\d/.test(name);
+        let emailValid = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+        let mobileValid = /^\d{10}$/.test(mobileNumber);
+        let passwordValid = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/.test(password);
+        let confirmPasswordValid = confirmPassword === password;
+
+        nameError.textContent = nameValid ? "" : "Name must be at least 3 characters long and cannot contain numbers";
+        emailError.textContent = emailValid ? "" : "Invalid email format";
+        mobileError.textContent = mobileValid ? "" : "Mobile number must be 10 digits long and contain only numeric characters";
+        passwordError.textContent = passwordValid ? "" : "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character";
+        confirmPasswordError.textContent = confirmPasswordValid ? "" : "Passwords do not match";
+
+        if (!nameValid || !emailValid || !mobileValid || !passwordValid || !confirmPasswordValid) {
+            event.preventDefault();
+            err.textContent = "Please fill all fields correctly";
+        }
+    }
+
+    form.addEventListener('submit', validateForm);
+    });
+
 
 
     function togglePasswordVisibility() {
@@ -128,73 +167,4 @@
             confirmPasswordInput.type = "password";
         }
     }
-
-    let mobileNumberInput = document.getElementById('register-mobileNumber-2');
-    mobileNumberInput.addEventListener('input', function(event) {
-        let inputValue = event.target.value;
-        let numericValue = inputValue.replace(/\D/g, '');
-        event.target.value = numericValue;
-    });
-
-    let emailInput = document.getElementById('register-email-2');
-    emailInput.addEventListener('input', function (event) {
-        let email = event.target.value;
-        let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        let isValidEmail = emailRegex.test(email);
-        let emailError = document.getElementById('email-error');
-
-        if (!isValidEmail) {
-            emailError.textContent = "Invalid email format";
-        } else {
-            emailError.textContent = "";
-        }
-    });
-
-    let passwordInput = document.getElementById('register-password-2');
-    passwordInput.addEventListener('input', function (event) {
-        let password = event.target.value;
-        let passwordError = document.getElementById('password-error');
-
-        let passwordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
-        let isValidPassword = passwordRegex.test(password);
-
-        if (!isValidPassword) {
-            passwordError.textContent = "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character";
-        } else {
-            passwordError.textContent = "";
-        }
-    });
-
-    let confirmPasswordInput = document.getElementById('confirm-password');
-    confirmPasswordInput.addEventListener('input', function (event) {
-        let password = document.getElementById('register-password-2').value;
-        let confirmPassword = event.target.value;
-        let confirmPasswordError = document.getElementById('confirm-password-error');
-
-        if (confirmPassword !== password) {
-            confirmPasswordError.textContent = "Passwords do not match";
-        } else {
-            confirmPasswordError.textContent = "";
-        }
-    });
-
-    document.getElementById('registerBtn').addEventListener('click', function (event) {
-        let email = document.getElementById('register-email-2').value;
-        let emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        let isValidEmail = emailRegex.test(email);
-
-        let password = document.getElementById('register-password-2').value;
-        let confirmPassword = document.getElementById('confirm-password').value;
-
-        if (!isValidEmail || password.length < 8 || password !== confirmPassword) {
-            event.preventDefault();
-            err.innerHTML="Please fill all the field in the form"
-        }
-    });
-
-    inputs.forEach(function(input) {
-        input.addEventListener('keypress', function(event) {
-            handleEnterKeyPress(event, input);
-        });
-    });
 </script>

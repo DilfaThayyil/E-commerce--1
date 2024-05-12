@@ -107,15 +107,18 @@
                           <td><%=order.userid.Email%></td>
                           <td><%=product.Status%></td>
                           <td>
+                            <%if(product.Status!=='cancelled'){%>
                             <div class="dropdown">
                               <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 Status
                               </button>
+                              
                               <div class="dropdown-menu" href="#" aria-labelledby="dropdownMenuButton">
                                 <a class="dropdown-item" href="#" onclick="updateStatus('shipped', '<%= order._id %>','<%= product.products._id %>')">Shipped</a>
                                 <a class="dropdown-item" href="#" onclick="updateStatus('delivered', '<%= order._id %>','<%= product.products._id %>')">Delivered</a>
                                 <a class="dropdown-item" href="#" onclick="updateStatus('cancelled', '<%= order._id %>','<%= product.products._id %>')">Cancelled</a>
                               </div>
+                            <%}%>
                             </div>
                           </td>
                         

@@ -140,6 +140,7 @@ const allOrders = async(req,res)=>{
                 path: "userid",
                 model: "User"
             })    
+          .sort({date:-1})
           .skip((page - 1) * perPage)
           .limit(perPage)
           .exec();
@@ -338,8 +339,8 @@ const addCategorySubmit = async(req,res)=>{
         const check = await Category.findOne({Name:name})
         if(check){
             const message="category already exists"
-            req.flash('err',message)
-            res.redirect('/admin/addcategory')
+            req.flash('error',message)
+            return res.redirect('/admin/addcategory')
         }else{
             const category=new Category({
                 Name:name,

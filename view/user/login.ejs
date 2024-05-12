@@ -39,19 +39,21 @@
 										<div class="form-group">
 											<label for="register-email-2">Your email address *</label>
 											<input type="email" class="form-control" id="register-email-2" name="email" required>
+											<span id="email-error" style="color: red;"></span>
 										</div><!-- End .form-group -->
 									
 										<div class="form-group">
 											<label for="register-password-2">Password *</label>
 											<div class="input-group">
 												<input type="password" class="form-control" id="register-password-2" name="password" required>
+												<div id="password-error" style="color: red;"></div>
+
 												<div class="input-group-append">
 													<span class="input-group-text" id="toggle-password">
 														<i class="fas fa-eye" id="toggle-icon"></i>
 													</span>
 												</div>
 											</div>
-											<div id="error" style="color: red; display: none;"></div>
 										</div>										
 									
 										<div class="form-footer">
