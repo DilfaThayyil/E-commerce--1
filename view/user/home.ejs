@@ -193,8 +193,11 @@
                                         <figure class="product-media">
                                             <%if(product.offer){%>
                                                 <span class="product-label label-new"><%=product.offer.percentage%>% offer</span>
+<<<<<<< HEAD
                                             <%}else if(product.Category.offer){%>
                                                 <span class="product-label label-new"><%=product.Category.offer.percentage%>% offer</span>
+=======
+>>>>>>> a35da3d (offer added)
                                             <%}%>
                                             <a href="/product/<%=product._id%>">
                                                 <img src="/uploads/<%=product.Images[0]%>" alt="Product image" class="product-image">
@@ -203,7 +206,11 @@
 
                                             <div class="product-action-vertical" >
                                                 <a onclick="addToWishlist('<%=product._id%>')" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
+<<<<<<< HEAD
                                                 <!-- <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a> -->
+=======
+                                                <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a>
+>>>>>>> a35da3d (offer added)
                                             </div><!-- End .product-action -->
 
                                             <div class="product-action">

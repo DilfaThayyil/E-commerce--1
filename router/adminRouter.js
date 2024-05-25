@@ -72,7 +72,10 @@ adminRouter.post('/addCategorySubmit',adminController.addCategorySubmit)
 adminRouter.post('/blockcategory/',adminController.blockCategory)
 adminRouter.get('/editcategory/:id',adminController.editCategory)
 adminRouter.post('/editcategorysubmit/:id',adminController.editCategorySubmit)
+<<<<<<< HEAD
 adminRouter.delete('/deleteCategory/:id',adminController.deleteCategory)
+=======
+>>>>>>> a35da3d (offer added)
 
 
 adminRouter.get('/allorders',adminController.allOrders)
@@ -88,7 +91,10 @@ adminRouter.post('/addCouponSubmit',adminController.addCouponSubmit)
 adminRouter.post('/blockCoupon',adminController.blockCoupon)
 adminRouter.get('/editCoupon/:id',adminController.editCoupon)
 adminRouter.post('/editCouponSubmit/:id',adminController.editCouponSubmit)
+<<<<<<< HEAD
 adminRouter.delete('/deleteCoupon/:id',adminController.deleteCoupon)
+=======
+>>>>>>> a35da3d (offer added)
 
 
 adminRouter.get('/salesReport',adminController.salesReport)

@@ -39,9 +39,14 @@
                           <th>Coupon Name</th>
                           <th>Coupon Code</th>
                           <th>Expr Date</th>
+<<<<<<< HEAD
                           <th>More info</th>
                           <th>Modify</th>
                           <th>List/Unlist</th>
+=======
+                          <th>More details</th>
+                          <th>Action</th>
+>>>>>>> a35da3d (offer added)
                         </tr>
                       </thead>
                     <tbody>
@@ -54,8 +59,13 @@
                           <% const formattedDate = new Date(coupon.expiryDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }); %>
                           <td><%=formattedDate%></td>
                           <td>
+<<<<<<< HEAD
                             <button type="button" class="btn btn-info" data-toggle="modal" data-target="#exampleModal<%=coupon._id%>">
                               <i class="mdi mdi-alert-circle-outline" style="font-size: 15px;"></i>
+=======
+                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal<%=coupon._id%>">
+                              Show
+>>>>>>> a35da3d (offer added)
                             </button>
                           </td> 
                           <div class="modal fade" id="exampleModal<%=coupon._id%>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -78,22 +88,34 @@
                               </div>
                             </div>
                           </div>
+<<<<<<< HEAD
                           <td>
                             <a class="btn btn-primary mr-2" href="/admin/editCoupon/<%=coupon._id%>"><i class="mdi mdi-pencil"></i></a>
                           </td>
                           <td>
                             <%if(coupon.status === true){%>
                               <a class="btn btn-danger" onclick="blockCoupon('<%=coupon._id%>')"><i class="mdi mdi-close-outline"></i>Block</a>
+=======
+                          
+                          <td>
+                            <a class="btn btn-primary mr-2" href="/admin/editCoupon/<%=coupon._id%>">Edit</a>
+                            <%if(coupon.status === true){%>
+                              <a class="btn btn-danger" onclick="blockCoupon('<%=coupon._id%>')">Block</a>
+>>>>>>> a35da3d (offer added)
                             <%}else{%>
                               <a class="btn btn-success" onclick="unBlockCoupon('<%=coupon._id%>')">unblock</a>
                             <%}%> 
                           </td>
+<<<<<<< HEAD
                           <td>
                             <a onclick="deleteCoupon('<%=coupon._id%>')"><i class="mdi mdi-delete" style="font-size: 20px; color: red;"></i></a>
                           </td>
 
                           
                           
+=======
+                        </tr>
+>>>>>>> a35da3d (offer added)
 
 
                        <%})%>
@@ -136,6 +158,7 @@
 
 
 
+<<<<<<< HEAD
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
@@ -145,6 +168,14 @@
 
 
     function blockCoupon(couponId) {
+=======
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+
+
+function blockCoupon(couponId) {
+>>>>>>> a35da3d (offer added)
       Swal.fire({
         title: 'Are you sure?',
         text: 'You are about to block this Coupon!',
@@ -198,6 +229,7 @@
     }
 
 
+<<<<<<< HEAD
     function deleteCoupon(couponId){
       Swal.fire({
         title: 'Are you sure?',
@@ -234,6 +266,9 @@
 
 
 </script>
+=======
+    </script>
+>>>>>>> a35da3d (offer added)
 
   
 

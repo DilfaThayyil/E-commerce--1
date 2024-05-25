@@ -207,7 +207,11 @@
                                     </tr><!-- End .summary-subtotal -->
                                     <tr>
                                         <td>Shipping:</td>
+<<<<<<< HEAD
                                         <td id="shipping">₹50</td>
+=======
+                                        <td>Free shipping</td>
+>>>>>>> a35da3d (offer added)
                                     </tr>
                                     
                                     
@@ -217,7 +221,7 @@
                                     </tr> 
                                     <tr id="display2">
                                         <td id="msg"></td>
-                                        <input type="text" id="couponcode" hidden>
+                                        <input type="text" id="couponcode" readonly>
                                         <td id="org"></td>
                                     </tr>
                                     
@@ -295,7 +299,10 @@
 
             const data = await response.json();
 
+<<<<<<< HEAD
             console.log(data);
+=======
+>>>>>>> a35da3d (offer added)
             if (data.success) {
                 document.getElementById('cancelcoupon').style.maxWidth = "150px"; 
                 document.getElementById('applied').innerHTML="Coupon successfully Added"
@@ -309,7 +316,11 @@
                 document.getElementById('org').innerHTML= `₹ ${data.totalPriceTotal}`
                 document.getElementById('org').style.textDecoration = 'line-through';
                 document.getElementById('offer').innerHTML="Offer Price"
+<<<<<<< HEAD
                 document.getElementById('discount').innerHTML= ` ${data.discountedPrice}`
+=======
+                document.getElementById('discount').innerHTML=data.discount
+>>>>>>> a35da3d (offer added)
             } else if (data.already) {
             document.getElementById('already').innerHTML=data.already   
             } else if(data.minimum) {
@@ -318,7 +329,10 @@
                 document.getElementById('already').innerHTML=data.error
             }
         } catch (error) {
+<<<<<<< HEAD
             document.getElementById('already').innerHTML='Already Used'
+=======
+>>>>>>> a35da3d (offer added)
         console.error('Error:', error);
         }
     });
@@ -438,7 +452,10 @@
             const selectedValue = document.getElementById("addressSelect").value;
 		    let  total=document.getElementById('discount').textContent.trim()
             total = parseFloat(total)
+<<<<<<< HEAD
             total += 50 //adding up the shipping charge
+=======
+>>>>>>> a35da3d (offer added)
             const couponid = document.getElementById('checkout-discount-input').value
             const paymentMethod = document.getElementById('payment').value
             if(isNaN(total)){
@@ -503,6 +520,7 @@
                     
                     let rzp1 = new Razorpay(options);
                     rzp1.open()
+<<<<<<< HEAD
                 } else {
                     Swal.fire({
                         title: 'Order Processing Failed',
@@ -544,6 +562,49 @@
                     }, 2000);
                 }
             })
+=======
+                    } else {
+                        Swal.fire({
+                            title: 'Order Processing Failed',
+                            text: 'An error occurred while processing the order.',
+                            icon: 'error',
+                            confirmButtonText: 'OK'
+                        });
+                        
+                    }
+            })
+            .catch(error => {
+            console.error('Error:', error);
+        });
+        }    
+    
+    
+    
+        function verifyPayment(payment, order) {
+            console.log(payment);
+            fetch('/verifyPayment', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ payment, order })
+            })
+            .then(response => response.json())
+            .then(response => {
+                if (response.payment) {
+                    Swal.fire({
+                        title: 'Order Placed Successfully!',
+                        icon: 'success',
+                        showConfirmButton: false,
+                        timer: 2000 // Set the duration for the alert
+                    });
+                    const orderid = order.receipt;
+                    setTimeout(() => {
+                        window.location.href = `/vieworder/${orderid}`;
+                    }, 2000);
+                }
+            })
+>>>>>>> a35da3d (offer added)
             .catch(error => console.error('Error:', error));
         }
 

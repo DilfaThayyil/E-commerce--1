@@ -18,10 +18,14 @@ const Offer = require('../model/offerSchema')
 const home = async(req,res)=>{
     try{
         const user=req.session.name
+<<<<<<< HEAD
         const products = await Product.find({Status:'active'}).populate({
             path: 'Category',
             populate: { path: 'offer' }
         }).populate('offer')
+=======
+        const products = await Product.find({Status:'active'}).populate('Category').populate('offer')
+>>>>>>> a35da3d (offer added)
         const offer = await Offer.find()
         const product = products.filter(product => product.Category.Status !== "blocked");
         res.render('home',{product,user,offer})
@@ -41,9 +45,14 @@ const login = (req,res)=>{
 
 const register = (req,res)=>{
     try{
+<<<<<<< HEAD
         const msg = req.flash('err')
         const Referral = req.query.referralCode
         res.render('register',{Referral,msg})
+=======
+        const Referral = req.query.referralCode
+        res.render('register',{Referral})
+>>>>>>> a35da3d (offer added)
     }catch(err){
         console.log(err);
     }
@@ -66,6 +75,7 @@ const registerSubmit = async (req,res)=>{
                 Email : email,
                 PhoneNumber : mobileNumber,
                 password : bcryptPassword ,
+<<<<<<< HEAD
                 ReferId:name+Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000
 
             }
@@ -73,6 +83,13 @@ const registerSubmit = async (req,res)=>{
            if(Referral){
             req.session.Referral=Referral
            }
+=======
+                ReferId:Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000
+
+            }
+            otp(email,name,Referral)
+            
+>>>>>>> a35da3d (offer added)
             req.session.userData = user
             res.redirect(`/otp`)
         }
@@ -170,9 +187,11 @@ const otppage = async(req,res)=>{
 
 const otpSubmit = async (req, res) => {
     try {
+        console.log("ghghghg : ", req.session.userData)
         const { digit1, digit2, digit3, digit4 } = req.body;
         const otpnumber =  digit1 + digit2 + digit3 + digit4;
         const user = req.session.userData;
+        console.log(req.session.userData)
         console.log(otpnumber);
         const check = await otpSchema.findOne({ email: user.Email });
         
@@ -497,6 +516,7 @@ const changePassword = async (req, res) => {
         res.json({success: true, message: 'Password changed successfully' });
 
 
+
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Internal server error" });
@@ -510,6 +530,7 @@ const wishlist = async(req,res)=>{
         const userId = req.session.user
         const wishlist = await Wishlist.findOne({userid:userId}).populate({
             path:"products.productId",
+<<<<<<< HEAD
             model:"Products",
             populate: [
                 { path: 'offer' },
@@ -518,6 +539,9 @@ const wishlist = async(req,res)=>{
                     populate: { path: 'offer' }
                 }
             ]
+=======
+            model:"Products"
+>>>>>>> a35da3d (offer added)
         })
         if(!wishlist){
             return res.render('wishlist',{wishlist:null})
@@ -533,11 +557,15 @@ const addToWishlist =async(req,res)=>{
     try{
         const productId = req.params.id
         const userId = req.session.user
+<<<<<<< HEAD
         const check = await Product.findById(productId).populate({
             path: 'Category',
             populate: { path: 'offer' }
         }).populate('offer');
         
+=======
+        const check = await Product.findById(productId)
+>>>>>>> a35da3d (offer added)
         if(!userId){
             res.json({error:'User not authenticated'})
         }
@@ -547,6 +575,7 @@ const addToWishlist =async(req,res)=>{
         }
 
         if(!userWishlist){
+<<<<<<< HEAD
             const newWishlist = new Wishlist({
                 userid : userId,
                 products : [product]
@@ -558,6 +587,15 @@ const addToWishlist =async(req,res)=>{
                 userWishlist.products.push(product)
             }
             
+=======
+            const userWishlist = new Wishlist({
+                userid : userId,
+                products : [product]
+            })
+            await userWishlist.save()
+        }else{
+            userWishlist.products.push(product)
+>>>>>>> a35da3d (offer added)
             await userWishlist.save()
         }
         res.json({message:'Product added to wishlist successfully'})

@@ -116,6 +116,7 @@
         }
 
 
+<<<<<<< HEAD
             function generate(){
               const period = document.getElementById('period').value;
               const startDate = document.getElementById('startDate').value;
@@ -141,6 +142,33 @@
                 body: JSON.stringify(data)
               })
               .then(response => response.json())
+=======
+      function generate(){
+        const period = document.getElementById('period').value;
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+      if (period === 'custom' && (!startDate || !endDate)) {
+        Swal.fire({
+            icon: 'error',
+            title: 'Oops...',
+            text: 'Please select both start and end dates!',
+        });
+        return;
+      } 
+      const data = {
+        period: period,
+        startDate: period === 'custom' ? startDate : '',
+        endDate: period === 'custom' ? endDate : ''
+    };
+        fetch('/admin/salesReportGenerate', {
+          method: "POST",
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(data)
+        })
+        .then(response => response.json())
+>>>>>>> a35da3d (offer added)
                 .then(result => {
                     if (result.data && result.data.orders.length > 0) {
                         const tableBody = document.querySelector('#salesTable tbody');

@@ -43,6 +43,7 @@
                           <td><%= formattedDate%></td>
                           <td><%=order.userid.Name%></td>
                           <td><%=order.userid.Email%></td>
+<<<<<<< HEAD
                           <%if(product.Status=='placed'){%>
                             <td><i class="text-primary"><%=product.Status%></i></td>
                           <%}else if(product.Status=='shipped'){%>
@@ -52,6 +53,9 @@
                           <%}else if(product.Status=='cancelled'){%>
                             <td><i class="text-danger"><%=product.Status%></i></td>
                           <%}%>
+=======
+                          <td><%=product.Status%></td>
+>>>>>>> a35da3d (offer added)
                           
                           <td>
                             <%if(product.Status!=='cancelled' && product.Status!=='returned' && product.Status!=='request return' && product.Status!=='delivered'){%>
@@ -59,7 +63,11 @@
                               <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 Status
                               </button>
+<<<<<<< HEAD
                               <div class="dropdown-menu te" href="#" aria-labelledby="dropdownMenuButton">
+=======
+                              <div class="dropdown-menu" href="#" aria-labelledby="dropdownMenuButton">
+>>>>>>> a35da3d (offer added)
                                 <a class="dropdown-item" href="#" onclick="updateStatus('shipped', '<%= order._id %>','<%= product.products._id %>')">Shipped</a>
                                 <a class="dropdown-item" href="#" onclick="updateStatus('delivered', '<%= order._id %>','<%= product.products._id %>')">Delivered</a>
                                 <a class="dropdown-item" href="#" onclick="updateStatus('cancelled', '<%= order._id %>','<%= product.products._id %>')">Cancelled</a>

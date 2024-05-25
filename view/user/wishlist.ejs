@@ -16,7 +16,11 @@
 							<tr>
 								<th class="text text-dark">Product</th>
 								<th class="text text-dark">Price</th>
+<<<<<<< HEAD
 								<th class="text text-dark ">Offer Price</th>
+=======
+								<th class="text text-dark ">Discount Price </th>
+>>>>>>> a35da3d (offer added)
                                 <th class="text text-dark ">Description</th>
 								<th></th>
 							</tr>
@@ -48,6 +52,7 @@
 
                                         <td>
                                             <a href="/product/<%=product.productId._id%>">
+<<<<<<< HEAD
                                                 <%
                                                 let finalPrice
                                                 const productPrice = parseFloat(product.productId.Price) || 0;
@@ -62,6 +67,9 @@
                                             
                                             %>
                                             ₹<%= finalPrice %>
+=======
+                                                <%=product.productId.DiscountPrice%>
+>>>>>>> a35da3d (offer added)
                                             </a>
                                         </td>
 
@@ -140,6 +148,7 @@
             if (rowToRemove) {
                 rowToRemove.remove();
             }
+<<<<<<< HEAD
             Swal.fire({
                 title: "Success",
                 text: data.message || "Product removed from wishlist successfully",
@@ -151,6 +160,14 @@
         })
         .catch(error => {
             Swal.fire("Error", error.message || "Failed to remove product from wishlist", "error");
+=======
+            swal.fire("Success", data.message || "Product removed from wishlist successfully" , "success").then(()=>{
+                window.location.reload()
+            });
+        })
+        .catch(error => {
+            swal.fire("Error", error.message || "Failed to remove product from wishlist", "error");
+>>>>>>> a35da3d (offer added)
         });
 
     }

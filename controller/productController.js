@@ -14,10 +14,14 @@ const Offer = require('../model/offerSchema')
 
 const allProducts = async (req,res)=>{
     try{
+<<<<<<< HEAD
         const products = await Product.find({Status:"active"}).populate({
             path: 'Category',
             populate: { path: 'offer' }
         }).populate('offer')
+=======
+        const products = await Product.find({Status:"active"}).populate('Category').populate('offer')
+>>>>>>> a35da3d (offer added)
         const offer = await Offer.find()
         const product = products.filter(product => product.Category.Status !== "blocked");
         const category = await Category.find({Status:"active"})
@@ -32,10 +36,14 @@ const singleProduct = async(req,res)=>{
     try{
         const singleproductId =req.params.id
         const userId = req.session.user
+<<<<<<< HEAD
         const product = await Product.findById(singleproductId) .populate({
             path: 'Category',
             populate: { path: 'offer' }
         }).populate('offer')
+=======
+        const product = await Product.findById(singleproductId).populate('Category').populate('offer')
+>>>>>>> a35da3d (offer added)
         const offer = await Offer.find()
         const recommend = await Product.find({Category:product.Category._id}).limit(4)
         const cart = await Cart.findOne({userid:userId})

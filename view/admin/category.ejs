@@ -33,9 +33,14 @@
                           <th>Name</th>
                           <th>Description</th>
                           <th>Offer</th>
+<<<<<<< HEAD
                           <th>Edit</th>
                           <th>Status</th>
+=======
+>>>>>>> a35da3d (offer added)
                           <th>Action</th>
+                          <th>Edit</th>
+                          <th>Status</th>
                         </tr>
                       </thead>
                       <tbody>
@@ -45,6 +50,7 @@
                             <td><%=category.Name%></td>
                             <td><%=category.Description%></td>
                             <td>
+<<<<<<< HEAD
                               <% if(category.offer){%>
                                 <p id="offer"><%=category.offer.name%></p>
                                 <a href="#" class="btn btn-danger" id="remove" onclick="removeOffer('<%=category.offer._id%>','<%=category._id%>')">
@@ -54,6 +60,17 @@
                                 <a href="" class="btn btn-success" data-toggle="modal" data-target="#offerModal<%=category._id%>">
                                   Apply
                                 </a>
+=======
+                              <a href="" class="btn btn-success" data-toggle="modal" data-target="#offerModal<%=category._id%>">
+                                Apply
+                              </a>
+                              <br>
+                              <% if(category.offer){%>
+                                <p id="offer"><%=category.offer.name%></p>
+                                <a href="#" class="text-danger" id="remove" onclick="removeOffer('<%=category.offer._id%>','<%=category._id%>')">
+                                  remove
+                                </a>
+>>>>>>> a35da3d (offer added)
                               <%}%>
 
                               <div class="modal fade" id="offerModal<%=category._id%>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -94,6 +111,7 @@
                                 </div>
                               </div>
                             </td>
+<<<<<<< HEAD
                             
                             <td><a class="btn btn-primary mr-2" href="/admin/editcategory/<%=category._id%>"><i class="mdi mdi-pencil"></i> Edit</a></td>
 
@@ -102,6 +120,10 @@
                             <%}else{%>
                               <td><i class="text-danger"><%=category.Status%></i></td>
                             <%}%>
+=======
+                            <td><%=category.Status%></td>
+                            <td><a class="btn btn-primary mr-2" href="/admin/editcategory/<%=category._id%>">Edit</a></td>
+>>>>>>> a35da3d (offer added)
                             <%if(category.Status=='active'){%>
                             <td><a class="btn btn-danger" onclick="confirmBlock('<%= category._id %>')"><i class="mdi mdi-close-outline"></i> block </button></td>
                             <%}else{%>
@@ -231,6 +253,7 @@
           }
 
 
+<<<<<<< HEAD
     function deleteCategory(categoryId){
       Swal.fire({
         title: 'Are you sure?',
@@ -266,6 +289,8 @@
     }
 
 
+=======
+>>>>>>> a35da3d (offer added)
   </script>
   
   

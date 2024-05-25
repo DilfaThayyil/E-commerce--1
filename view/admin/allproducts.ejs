@@ -42,6 +42,7 @@
                     <% products.forEach((product, index) => { %>
                         <tr>
                           <td><%= product.Name %></td>
+<<<<<<< HEAD
                           <td><%= product.Price %></td>
                           <td><%= product.Category.Name%></td>
                           <td><%= product.Quantity %></td>
@@ -119,6 +120,9 @@
 
                           <td>
                             <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal<%=product._id%>">
+=======
+                          <td><button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal<%=product._id%>">
+>>>>>>> a35da3d (offer added)
                               Show
                             </button>
                           </td> 
@@ -144,6 +148,79 @@
                             </div>
                           </div>
                           
+<<<<<<< HEAD
+=======
+                          <td>
+                            <a href="#" class="image-preview" data-src="/uploads/<%= product.Images[0] %>">
+                              <img src="/uploads/<%= product.Images[0] %>" alt="">
+                            </a>
+                          </td>
+
+                          <td>
+                            <a href="" class="btn btn-success" data-toggle="modal" data-target="#offerModal<%=product._id%>">
+                              Apply
+                            </a>
+                            <br>
+                            <%if(product.offer){%>
+                              <p id="offer"><%=product.offer.name%></p>
+                              <a href="" class="text-danger" id="remove" onclick="removeOffer('<%=product.offer._id%>','<%=product._id%>')">
+                                remove
+                              </a>
+                            <%}%>
+
+                            <div class="modal fade" id="offerModal<%=product._id%>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                              <div class="modal-dialog">
+                                <div class="modal-content">
+                                  <div class="modal-header">
+                                    <h5 class="modal-title" id="exampleModalLabel" style="color: white;">Select offer</h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                      <span aria-hidden="true">&times;</span>
+                                    </button>
+                                  </div>
+                                  <div class="modal-body">
+                                    <hr>
+                                    <h3 style="color: whitesmoke;">Available Offers</h3>
+                                    <% offers.forEach((offer)=>{%>
+                                      <div class="row">
+                                        <div class="col-sm-6">
+                                          <div class="card">
+                                            <div class="card-body">
+                                              <h5 class="card-title">Name :<%=offer.name%></h5>
+                                              <p class="card-text">Offer percentage :<%=offer.percentage%>%</p>
+                                              <p class="card-text">StartingDate : <br> <%=offer.startDate.toLocaleDateString('en-US')%></p>
+                                              <p class="card-text">ExpiryDate :  <br> <%=offer.endDate.toLocaleDateString('en-US')%></p>
+                                              <button id="offerapply_<%=offer._id%>" onclick="applyoffer('<%=offer._id%>', '<%=product._id%>', 'offerapply_<%=offer._id%>')" class="btn btn-primary">Apply Offer</button>
+                                              <br>
+                                              <a href="#" style="display: none;" class="text-success" id="mesgoffer">Offer added</a>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                      
+                                    <%})%>
+                                  </div>
+
+                                  <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-primary">Save changes</button>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </td>  
+
+                          <td><a class="btn btn-primary mr-2" href="/admin/editproduct/<%=product._id%>">Edit</a></td>
+
+                          <td><%= product.Status %></td>
+                          <td>
+                            <% if (product.Status === 'active') { %>
+                              <a class="btn btn-danger" href="/admin/blockproduct/<%= product._id %>">Block</a>
+                            <% } else { %>
+                              <a class="btn btn-success" href="/admin/unblockproduct/<%= product._id %>">Unblock</a>
+                            <% } %>
+                          </td>
+                          
+>>>>>>> a35da3d (offer added)
                         </tr>
                         <% }) %>
                         
