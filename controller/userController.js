@@ -6,15 +6,22 @@ const otpSchema = require('../model/otp')
 const Cart = require('../model/cart')
 const nodemailer = require('nodemailer');
 const Order = require('../model/orderSchema')
+const Coupon = require('../model/couponSchema')
+const Wishlist = require('../model/wishlistSchema')
+const Offer = require('../model/offerSchema')
+
+
+
 
 
 
 const home = async(req,res)=>{
     try{
         const user=req.session.name
-        const products = await Product.find({Status:'active'}).populate('Category')
+        const products = await Product.find({Status:'active'}).populate('Category').populate('offer')
+        const offer = await Offer.find()
         const product = products.filter(product => product.Category.Status !== "blocked");
-        res.render('home',{product,user})
+        res.render('home',{product,user,offer})
     }catch(err){
         console.log(err);
     }
@@ -31,7 +38,8 @@ const login = (req,res)=>{
 
 const register = (req,res)=>{
     try{
-        res.render('register')
+        const Referral = req.query.referralCode
+        res.render('register',{Referral})
     }catch(err){
         console.log(err);
     }
@@ -39,6 +47,7 @@ const register = (req,res)=>{
 
 const registerSubmit = async (req,res)=>{
     try{
+        const Referral = req.body.Referral
         const {name,email,mobileNumber,password} = req.body
         const check = await User.findOne({Email:email})
         if(check){
@@ -47,14 +56,16 @@ const registerSubmit = async (req,res)=>{
             return res.redirect('/register')
         }else{  
            const bcryptPassword=  await bcrypt.hash(password,10)
+           
             const user = {
                 Name : name,
                 Email : email,
                 PhoneNumber : mobileNumber,
-                password : bcryptPassword 
+                password : bcryptPassword ,
+                ReferId:Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000
+
             }
-            
-            otp(email,name)
+            otp(email,name,Referral)
             
             req.session.userData = user
             res.redirect(`/otp`)
@@ -153,9 +164,11 @@ const otppage = async(req,res)=>{
 
 const otpSubmit = async (req, res) => {
     try {
+        console.log("ghghghg : ", req.session.userData)
         const { digit1, digit2, digit3, digit4 } = req.body;
         const otpnumber =  digit1 + digit2 + digit3 + digit4;
         const user = req.session.userData;
+        console.log(req.session.userData)
         console.log(otpnumber);
         const check = await otpSchema.findOne({ email: user.Email });
         
@@ -346,9 +359,10 @@ const userProfile = async(req,res)=>{
             path:"products.products",
             model:"Products"
         })
+        const coupon = await Coupon.find()
         orders = orders.sort((a, b) => b.date - a.date)
         const user = await User.findOne({_id:userid})
-        res.render('profile',{orders,user})
+        res.render('profile',{orders,user,coupon})
     }catch(err){
         console.log(err);
     }
@@ -438,16 +452,18 @@ const removeAddress=async (req,res)=>{
 const changePassword = async (req, res) => {
     try {
         const { currentPassword, newPassword } = req.body;
-        console.log(req.body);
+        const oldPassword = req.body.currentPassword
+
         const userId = req.session.user;
-        const user = await User.findOne({ _id: userId });
-        console.log(user);
+        const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ error: "User not found" });
         }
+        if (!user.password) {
+            return res.status(400).json({ success: false, message: 'Password is missing from user data' });
+        }
 
         const passwordMatch = await bcrypt.compare(currentPassword,user.password);
-        console.log(passwordMatch);
         if (!passwordMatch) {
             return res.status(400).json({ error: "Incorrect current password" });
         }
@@ -458,12 +474,78 @@ const changePassword = async (req, res) => {
         
         res.json({ message: "Password changed successfully" });
 
+
     } catch (err) {
         console.error(err);
         res.status(500).json({ error: "Internal server error" });
     }
 };
 
+
+
+const wishlist = async(req,res)=>{
+    try{
+        const userId = req.session.user
+        const wishlist = await Wishlist.findOne({userid:userId}).populate({
+            path:"products.productId",
+            model:"Products"
+        })
+        if(!wishlist){
+            return res.render('wishlist',{wishlist:null})
+        }
+        res.render('wishlist',{wishlist})
+    }catch(err){
+        console.log(err)
+    }
+}
+
+
+const addToWishlist =async(req,res)=>{
+    try{
+        const productId = req.params.id
+        const userId = req.session.user
+        const check = await Product.findById(productId)
+        if(!userId){
+            res.json({error:'User not authenticated'})
+        }
+        const userWishlist = await Wishlist.findOne({userid:userId})
+        let product = {
+            productId : productId
+        }
+
+        if(!userWishlist){
+            const userWishlist = new Wishlist({
+                userid : userId,
+                products : [product]
+            })
+            await userWishlist.save()
+        }else{
+            userWishlist.products.push(product)
+            await userWishlist.save()
+        }
+        res.json({message:'Product added to wishlist successfully'})
+    }catch(err){
+        console.log(err)
+    }
+}
+
+const removeFromWish = async(req,res)=>{
+    try{
+        const productId = req.params.id
+        const result = await Wishlist.updateOne(
+            { "products.productId": productId },
+            { $pull: { products: { productId: productId } } }
+        )
+
+        if(result.deletedCount > 0){
+            res.json({message:"Product removed from wishlist successfully"})
+        }else{
+            res.json({error: "Product not found in wishlist"})
+        }
+    }catch(err){
+        console.log(err)
+    }
+}
 
 
 
@@ -488,5 +570,8 @@ module.exports={
     editAddress,
     profileAddAddress,
     removeAddress,
-    changePassword
+    changePassword,
+    wishlist,
+    addToWishlist,
+    removeFromWish
 }

@@ -12,6 +12,10 @@ const user = new mongoose.Schema({
         type:Number,
     
     },
+    wallet:{
+        type:Number,
+        default:0
+    },
     resetToken:{
         type:String,
         default:null
@@ -27,6 +31,21 @@ const user = new mongoose.Schema({
     cart:{
         products:[String]
     },
+    walletHistory: [{
+        amount: {
+            type: Number,
+        },
+        description: {
+            type: String,
+        },
+        date: {
+            type: Date,
+            default: Date.now()
+        },
+        status: {
+            type: String,
+        }
+    }],
     Addresses:[{
         name:{
             type:String

@@ -6,13 +6,55 @@ const otpSchema = require('../model/otp')
 const Cart = require('../model/cart')
 const nodemailer = require('nodemailer');
 const Order = require('../model/orderSchema')
+const Coupon = require('../model/couponSchema')
+require('dotenv').config()
+const Razorpay = require('razorpay')
+const {key_id,key_secret} = process.env
+const crypto = require('crypto')
 
+
+
+
+
+
+const instance = new Razorpay({
+  key_id:key_id,
+  key_secret:key_secret
+})
+
+
+const generateRazorpay =(orderId , adjustedAmount)=>{
+  return new Promise((resolve,reject)=>{
+    const options = {
+      amount:adjustedAmount,
+      currency:"INR",
+      receipt:""+orderId
+    }
+    instance.orders.create(options,function(err,order){
+      if(err){
+        reject(err)
+      }else{
+        resolve(order)
+      }
+    })
+  })
+}
 
 
 const placeOrder = async (req, res) => {
     try {
         const userid = req.session.user
-        const { selectedValue, total } = req.body;
+        const { selectedValue, total ,couponid ,paymentMethod} = req.body;
+
+        if(couponid){
+          const coupon = await Coupon.findById(couponid)
+          console.log(coupon)
+          if(coupon){
+            coupon.usedUser.push({user_id:userid})
+            await coupon.save()
+          }
+        }
+
         const cartData = await Cart.findOne({userid:userid}).populate({
             path:"products.productId",
             model:"Products"
@@ -35,23 +77,79 @@ const placeOrder = async (req, res) => {
         }));
 
         const newOrder = new Order({
-            userid: userid,
-            address: selectedValue,
-            total: total,
-            date: new Date(),
-            products: products,
-            status: 'placed'
-        })
+          userid: userid,
+          address: selectedValue,
+          total: total,
+          date: new Date(),
+          products: products,
+          status: 'placed',
+          paymentMode:paymentMethod
+      })
+
+      if(paymentMethod === 'wallet'){
+        newOrder.paymentStatus='wallet'
         await newOrder.save()
-        await Cart.deleteOne({userid:req.session.user})
-        
+        const orderSaved = await newOrder.save().then(async()=>{
+          await Cart.deleteOne({userid:userid})
+        })
+        const user = await User.findOne({_id:userid})
+        user.wallet=user.wallet-total
+        const transaction = {
+          amount : total,
+          description: 'Product purchased',
+          date : new date(),
+          status : 'out'
+        }
+        user.walletHistory.push(transaction)
+        await user.save()
+      }
+      
+      if(paymentMethod === 'Cash on delivery'){
+        newOrder.paymentStatus="COD"
+        await newOrder.save()
+        await Cart.deleteOne({userid:userid})
         res.json({ success: true, order: newOrder });
-        
-    } catch (error) {
-        console.error('Error placing order:', error);
-        res.status(500).json({ success: false, error: 'An error occurred while placing the order.' });
-    }
+
+      }else if(paymentMethod === 'Razorpay'){
+        const totalPrice = Math.round(newOrder.total*100)
+        const minimumAmount = 100
+        const adjustedAmount = Math.max(totalPrice,minimumAmount)
+        generateRazorpay(newOrder._id,adjustedAmount).then(async(response)=>{
+          await newOrder.save()
+          res.json({ Razorpay: response ,order: newOrder });
+        })
+      }
+  } catch (error) {
+      console.error('Error placing order:', error);
+      res.status(500).json({ success: false, error: 'An error occurred while placing the order.' });
+  }
 };
+
+
+
+
+const verifyPayment = async(req,res)=>{
+  try{
+    const userId = req.session.user
+    const {payment,order} = req.body
+    const orderId = order.receipt
+    let hmac= crypto.createHmac('sha256','XEwHXRnbP4kAiT17e5nWBbLk')
+    hmac.update(payment.razorpay_order_id+'|'+payment.razorpay_payment_id)
+    hmac=hmac.digest('hex')
+    if(hmac===payment.razorpay_signature){
+       const order = await Order.findById(orderId)
+        order.paymentStatus="Razorpay"
+        await order.save();
+        const cart= await Cart.deleteOne({userid:userId})
+        res.json({payment:true})
+      }
+   
+  }catch(err){
+  console.log(err);
+  }
+}
+
+
 
 
 const viewOrder = async(req,res)=>{
@@ -78,35 +176,41 @@ const viewOrder = async(req,res)=>{
 
 const cancelOrder = async(req,res)=>{
     try{
+        const userid = req.session.user
         const {productid,orderid} = req.params
-
+        const user = await User.findById(userid)
         const order=await Order.findById(orderid)
-
         if (!order) {
             return res.status(404).json({ success: false, message: 'Order not found' });
         }
-        
         let cancelProduct = order.products.find(product=>
             product.products.toString() === productid
         )
         if (!cancelProduct) {
             return res.json({ success: false, message: 'Product not found in order' });
         }
-
         cancelProduct.Status='cancelled'
         await order.save()
         const product = await Product.findById(productid)
-       
         if (!product) {
             return res.json({ success: false, message: 'Product not found' });
         }
-
         product.Quantity += cancelProduct.quantity
         await product.save()
-        
 
+        const refundAmount = cancelProduct.total
+        if(order.paymentMode === 'Razorpay' || order.paymentMode === 'wallet'){
+          user.wallet += refundAmount
+          const transaction = {
+            amount : refundAmount,
+            description : 'Product cancellation',
+            date : new Date(),
+            status : 'in'
+          }
+          user.walletHistory.push(transaction)
+          await user.save()
+        }
         res.json({success: true,message: 'Product cancelled successfully'});
-
     }catch(err){
         console.log(err)
     }
@@ -161,10 +265,61 @@ const returnRequest = async (req, res) => {
 };
 
 
+const applyCoupon = async (req, res) => {
+    try {
+      const userId = req.session.user
+      const { couponCode,checkprice } = req.body;
+      console.log(req.body)
+      const coupon = await Coupon.findOne({code:couponCode})
+      console.log(coupon)
+      if (coupon) {
+        const couponid = coupon._id
+        const alreadyUsed = coupon.usedUser.some((user) => user.userid.toString() === userId);
+            
+        if (!alreadyUsed) {
+          if(coupon.minAmount<=checkprice){
+            const currentDate = new Date();
+            if (coupon.expiryDate > currentDate) {
+            const couponName = coupon.name;
+            coupon.usedUser.push({ userid: userId, used: true });
+            await coupon.save();
+            const cartData = await Cart.findOne({ userid: userId }).populate({
+                path: 'products.productId',
+                model: 'Products'
+            });
+              const totalPriceTotal = cartData.products.reduce((total, product) => {
+                return total + product.totalPrice;
+              }, 0);
+  
+             const discount =totalPriceTotal-coupon.discountAmount
+             res.json({ success: `${couponName} `,totalPriceTotal,discount,couponid });
+            }else{
+              res.json({ already: 'Coupon date expired' });
+            }
+          }else{
+            res.json({minimum:`Coupon not added Minimum purchase ₹ ${coupon.minAmount}`})
+          }
+  
+        } else {
+          res.json({ already: 'Coupon already used by this user' });
+        }
+      } else {
+        res.json({ error: 'Coupon not found' });
+      }
+    } catch (err) {
+      console.error(err);
+      res.status(500).json({ error: 'Internal Server Error' });
+    }
+  };
+
+
 module.exports={
     placeOrder,
     viewOrder,
     cancelOrder,
     orderSummary,
-    returnRequest
+    returnRequest,
+    applyCoupon,
+    generateRazorpay,
+    verifyPayment
 }

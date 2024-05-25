@@ -6,15 +6,20 @@ const otpSchema = require('../model/otp')
 const Cart = require('../model/cart')
 const nodemailer = require('nodemailer');
 const Order = require('../model/orderSchema')
+const Coupon = require('../model/couponSchema')
+const Offer = require('../model/offerSchema')
+
+
 
 
 const allProducts = async (req,res)=>{
     try{
-        const products = await Product.find({Status:"active"}).populate('Category')
+        const products = await Product.find({Status:"active"}).populate('Category').populate('offer')
+        const offer = await Offer.find()
         const product = products.filter(product => product.Category.Status !== "blocked");
         const category = await Category.find({Status:"active"})
         
-        res.render('allproducts',{product,category,message:req.query.message})
+        res.render('allproducts',{product,category,message:req.query.message,offer})
     }catch(err){
         console.log(err);
     }
@@ -24,7 +29,8 @@ const singleProduct = async(req,res)=>{
     try{
         const singleproductId =req.params.id
         const userId = req.session.user
-        const product = await Product.findById(singleproductId).populate('Category')
+        const product = await Product.findById(singleproductId).populate('Category').populate('offer')
+        const offer = await Offer.find()
         const recommend = await Product.find({Category:product.Category._id}).limit(4)
         const cart = await Cart.findOne({userid:userId})
     
@@ -38,7 +44,7 @@ const singleProduct = async(req,res)=>{
             })
         }
        
-        res.render('singleproduct',{product,recommend})
+        res.render('singleproduct',{product,recommend,offer})
     }catch(err){
         console.log(err);
     }

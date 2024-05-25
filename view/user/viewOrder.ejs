@@ -167,8 +167,7 @@
                                                 <div class="col-auto my-auto"><%=product.products.Category.Name%></div>
                                                 <div class="col my-auto"><%=product.products.DiscountPrice%></div>
                                                 <div class="col my-auto">Qty : <%=product.quantity%></div>
-                                                <div class="col my-auto"><h6 class="mb-0">&#8377;<%=product.total%></h6>
-                                                </div>
+                                                <div class="col my-auto"><h6 class="mb-0">&#8377;<%=product.total%></h6></div>
                                                 <div><h6>Order status : <span class="text-danger"><%=product.Status%></span></h6></div>
                                                 <div class=""></div>
                                             </div>
@@ -205,8 +204,9 @@
                                 <div class="flex-sm-col text-right col"> <p class="mb-1"><b>Total  :</b></p> </div>
                                 <div class="flex-sm-col col-auto"> <p class="mb-1">&#8377;<%=order.total%></p> </div>
                             </div>
-                            
-                           
+
+                            <a href="/download-invoice/<%=order._id%>" class="btn btn-primary btn-round" download="invoice.pdf">Download Invoice</a>                     
+                                  
                             <div class="row justify-content-between">
                                 <div class="flex-sm-col text-right col"><p class="mb-1"><b>Delivery Charges</b></p></div>
                                 <div class="flex-sm-col col-auto"><p class="mb-1">Free</p></div>
@@ -221,8 +221,8 @@
                             <div class="col-auto my-auto "><h2 class="mb-0 font-weight-bold">TOTAL PAID</h2></div>
                             <div class="col-auto my-auto ml-auto"><h1 class="display-3 ">&#8377; <%=order.total%></h1></div>
                         </div>
-                        
                     </div>
+
                 </div>
             </div>
         </div>

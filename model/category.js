@@ -13,6 +13,10 @@ const categorySchema = new mongoose.Schema({
         type: String,
         enum: ["active", "blocked"],
         default: "active"
+    },
+    offer:{
+        type:mongoose.Schema.Types.ObjectId,
+        ref:'offer'
     }
 });
 

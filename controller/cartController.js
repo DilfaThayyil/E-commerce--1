@@ -6,6 +6,13 @@ const otpSchema = require('../model/otp')
 const Cart = require('../model/cart')
 const nodemailer = require('nodemailer');
 const Order = require('../model/orderSchema')
+const Coupon = require('../model/couponSchema')
+require('dotenv').config()
+const Razorpay = require('razorpay')
+const {key_id,key_secret} = process.env
+const crypto = require('crypto')
+
+
 
 
 const cart = async(req,res)=>{
@@ -24,7 +31,7 @@ const cart = async(req,res)=>{
         }, 0);
         subtotal = totalPrice
         
-        res.render('cart',{cart,totalPrice,subtotal})
+        res.render('cart',{cart,totalPrice,subtotal })
     }catch(err){
         console.log(err);
     }

@@ -8,7 +8,8 @@ const multer=require('multer')
 const fs = require('fs')
 const Order = require('../model/orderSchema')
 require('dotenv').config()
-
+const Coupon = require('../model/couponSchema')
+const offer = require('../model/offerSchema')
 
 
 
@@ -27,13 +28,7 @@ const upload = multer({ storage: storage }).array("images", 4);
 app.use(express.static(path.join(__dirname, "public")));
 
 
-const dashboard =(req,res)=>{
-    try{
-        res.render('dashboard')
-    }catch(err){
-        console.log(err);
-    }
-}
+
 
 const login = (req,res)=>{
     try{
@@ -83,6 +78,7 @@ const allProducts = async (req, res) => {
         const page = parseInt(req.query.page) || 1;
         const totalProducts = await Product.countDocuments();
         const totalPages = Math.ceil(totalProducts / perPage);
+        const offers = await offer.find()
   
         const products = await Product.find()
             .populate({
@@ -93,7 +89,8 @@ const allProducts = async (req, res) => {
             .limit(perPage)
             .exec();
   
-        res.render('allproducts', { products, admin, totalPages, currentPage: page });
+        const successMessage = req.flash('success');
+        res.render('allproducts', { products, admin, totalPages, currentPage: page , message: successMessage , offers});
     } catch (err) {
         console.error(err);
         res.send('Internal Server Error');
@@ -115,8 +112,8 @@ const allUsers = async(req,res)=>{
 const category = async(req,res)=>{
     try{
         const category = await Category.find()
-       
-        res.render('category',{category})
+       const offers = await offer.find()
+        res.render('category',{category,offers})
     }catch(err){
         console.log(err);
     }
@@ -317,6 +314,7 @@ const addProductsSubmit = async(req,res)=>{
                 
             })
             await product.save()
+            req.flash('success', 'Product added successfully');
             res.redirect('/admin/allproducts')
         }
     });
@@ -543,14 +541,393 @@ const imagedelete = async (req, res) => {
   }
 
 
+    const coupon = async(req,res)=>{
+        try{
+            const coupons = await Coupon.find()
+            const successMessage = req.flash('success')
+            res.render('coupons',{coupons,message:successMessage})
+        }catch(err){
+            console.log(err)
+        }
+  }
+
+
+    const addCoupons = async(req,res)=>{
+        try{
+            res.render('addCoupons')
+        }catch(err){
+            console.log(err)
+        }   
+    }
 
   
+    const addCouponSubmit = async(req,res)=>{
+        try{
+            const {couponName,couponCode,discountAmount,MinAmount,couponDescription,exprDate} = req.body
+            const check = await Coupon.findOne({name:couponName})
+            if(check){
+                const message = "Coupon name already exists"
+                req.flash('err',message)
+                res.redirect('/admin/addCoupons')
+            }else{
+                const coupon = new Coupon({
+                    name:couponName,
+                    code:couponCode,
+                    discountAmount:discountAmount,
+                    minAmount:MinAmount,
+                    description:couponDescription,
+                    expiryDate:exprDate
+                })
+                await coupon.save()
+                req.flash('success','Coupon added successfully')
+                res.redirect('/admin/coupon')
+            }
+        }catch(err){
+            console.log(err)
+        }
+    }
 
+
+
+    const blockCoupon =async(req,res)=>{
+        try{
+            const couponId = req.body.couponId
+            const action = req.body.action
+            const check = await Coupon.findById(couponId)
+            if(check){
+                check.status = action === 'block' ? false : true;
+                await check.save()
+                res.json({success:true})
+            }else{
+                res.json({success:false})
+            }
+        }catch(err){
+            console.log(err)
+        }
+    }
+
+
+    const editCoupon = async(req,res)=>{
+        try{
+            const couponId = req.params.id
+            const coupon = await Coupon.findOne({_id:couponId})
+            res.render('editcoupon',{coupon})
+        }catch(err){
+            console.log(err)
+        }
+    }
+    
+
+    const editCouponSubmit = async (req,res)=>{
+        try{
+            const couponId = req.params.id
+            const updatedCoupon = await Coupon.findOne({_id:couponId})
+            const existingCoupon = await Coupon.findOne({name:req.body.name });
+            if (existingCoupon && existingCoupon._id.toString() !== couponId) {
+            req.flash('error', 'Coupon name already exists');
+            return res.redirect('/admin/editCoupon/' + couponId); 
+            }
+            if(updatedCoupon){
+                await Coupon.findByIdAndUpdate({_id:couponId},{
+                name: req.body.name,
+                code: req.body.code,
+                discountAmount: req.body.discount,
+                minAmount: req.body.minimum,
+                description: req.body.description,
+                expiryDate: req.body.date,
+                })
+            }else{
+                res.redirect('/admin/coupon')
+            }
+            res.redirect('/admin/coupon')
+        }catch(err){
+            console.log(err)
+        }
+    }
   
 
+    const dashboard =(req,res)=>{
+        try{
+            res.render('dashboard')
+        }catch(err){
+            console.log(err);
+        }
+    }
 
 
-module.exports = {
+    const salesReport = async(req,res)=>{
+        try{
+            res.render('salesReport')
+        }catch(err){
+            console.log(err)
+        }
+    }
+
+
+    const salesReportGenerate = async(req,res)=>{
+        try{
+            const { period, startDate, endDate } = req.body;
+            let startDateTime, endDateTime;
+
+            switch (period) {
+            case 'daily':
+                startDateTime = new Date();
+                startDateTime.setHours(0, 0, 0, 0);
+                endDateTime = new Date();
+                endDateTime.setHours(23, 59, 59, 999);
+                break;
+
+            case 'weekly':
+                startDateTime = new Date();
+                startDateTime.setDate(startDateTime.getDate() - startDateTime.getDay());
+                startDateTime.setHours(0, 0, 0, 0);
+                endDateTime = new Date();
+                endDateTime.setDate(startDateTime.getDate() + 6);
+                endDateTime.setHours(23, 59, 59, 999);
+                break;
+
+            case 'monthly':
+                startDateTime = new Date();
+                startDateTime.setDate(1);
+                startDateTime.setHours(0, 0, 0, 0);
+                endDateTime = new Date();
+                endDateTime.setMonth(endDateTime.getMonth() + 1);
+                endDateTime.setDate(0);
+                endDateTime.setHours(23, 59, 59, 999);
+                break;
+
+            case 'custom':
+                if (!startDate || !endDate) {
+                    return res.status(400).json({ error: 'Start date and end date are required for custom period' });
+                }
+                startDateTime = new Date(`${startDate}T00:00:00.000Z`);
+                endDateTime = new Date(`${endDate}T23:59:59.999Z`);
+                break;
+
+            default:
+                return res.status(400).json({ error: 'Invalid period specified' });
+        }
+
+        console.log(`Generating report from ${startDateTime} to ${endDateTime}`);
+
+            const orders = await Order.aggregate([
+                {
+                    $match: {
+                        date: { $gte: startDateTime, $lte: endDateTime },
+                        'products.Status': 'delivered' 
+                    },
+                },
+                {
+                    $lookup: {
+                        from: 'users', 
+                        localField: 'userid',
+                        foreignField: '_id',
+                        as: 'user',
+                    },
+                },
+                {
+                    $unwind: '$user',
+                },
+                {
+                    $unwind: '$products',
+                },
+                {
+                    $lookup: {
+                        from: 'products',
+                        localField: 'products.products',
+                        foreignField: '_id',
+                        as: 'products.productInfo',
+                    },
+                },
+                {
+                    $unwind: '$products.productInfo',
+                },
+                {
+                    $group: {
+                        _id: '$_id',
+                        userid: { $first: '$user' },
+                        products: {
+                            $push: {
+                                name: '$products.productInfo.Name',
+                                price: '$products.productInfo.Price',
+                                discountPrice: '$products.productInfo.DiscountPrice',
+                                status: '$products.Status',
+                                quantity: '$products.quantity',
+                                total: '$products.total'
+                            }
+                        },
+                        total: { $sum: '$products.total' },
+                        date: { $first: '$date' },
+                    },
+                },
+            ])
+
+            console.log("Orders Count:", orders.length);
+            console.log("Start Date:", startDateTime);
+            console.log("End Date:", endDateTime);
+
+            return res.json({
+                status: "success",
+                data: {
+                    orders,
+                    startDate: startDateTime,
+                    endDate: endDateTime,
+                },
+            });
+        } catch (error) {
+            console.error('Error generating sales report:', error);
+            res.status(500).send({ error: 'Internal Server Error' });
+        }
+    }
+
+
+    const allOffers = async(req,res)=>{
+        try{
+            const message = ''
+            const offers = await offer.find()
+            res.render('allOffers',{offers,message})
+        }catch(err){
+            console.log(err)
+        }
+    }
+
+
+    const addOffer = async(req,res)=>{
+        try{
+            res.render('addOffers')
+        }catch(err){
+            console.log(err)
+        }
+    }
+
+
+    const addOfferSubmit = async(req,res)=>{
+        try{
+            const {name,startingDate,endDate,percentage}=req.body
+            const already=await offer.findOne({name:name})
+            if(already){
+              const message="Offer is already exists"
+              req.flash('msg',message)
+              res.redirect('/admin/addOffer')
+            }
+            const newOffer = new offer({
+              name:name,
+              startDate:startingDate,
+              endDate:endDate,
+              percentage:percentage
+            })
+            await newOffer.save()
+            res.redirect('/admin/offer')
+          }catch(err){
+            console.log(err);
+          }
+    }
+
+
+    const editOffer = async(req,res)=>{
+        try{
+            const offerId = req.params.id
+            const offers = await offer.findById(offerId)
+            res.render('editOffers',{offers})
+        }catch(err){
+            console.log(err)
+        }
+    }
+
+
+    const editOfferSubmit = async(req,res)=>{
+        try{
+            const offerId = req.params.id
+            const {name,startingDate,endDate,percentage} = req.body
+    
+            const existingOffer = await offer.findOne({
+            name: name,
+            _id: { $ne: offerId }
+            });
+            if (existingOffer) {
+            const message="An offer with the same name already exists."
+            req.flash('msg',message)
+            return res.redirect('/admin/offer')
+            }
+            const update = await offer.findByIdAndUpdate(
+                { _id: offerId },
+                {
+                    name:name,
+                    startDate:startingDate,
+                    endDate:endDate,
+                    percentage:percentage
+                }
+            );
+
+            res.redirect('/admin/offer');
+
+        }catch(err){
+            console.log(err)
+        }
+    }
+
+
+    const applyOffer = async(req,res)=>{
+        try{
+            const {offerId,productId} = req.body            
+            const product = await Product.findOneAndUpdate(
+                {_id:productId},
+                {offer:offerId},
+                {new:true}
+            ).populate('offer')
+            res.json({success:true,product})
+        }catch(err){
+            console.log(err)
+        }
+    }
+
+
+    const removeOffer = async(req,res)=>{
+        try{
+            const {offerId,productId} = req.body
+            const product = await Product.findByIdAndUpdate(
+                {_id:productId},
+                {offer:null}
+            )
+            await product.save()
+            res.json({success:'true'})
+        }catch(err){
+            console.log(err)
+        }
+    }
+
+
+    const applyOfferCategory = async(req,res)=>{
+        try{
+            const {offerId,categoryId} = req.body
+            const category = await Category.findOneAndUpdate(
+                {_id:categoryId},
+                {offer:offerId},
+                {new:true}
+            ).populate('offer')
+            res.json({success:true,category})
+        }catch(err){
+            console.log(err)
+        }
+    }
+
+
+    const removeOfferCategory = async(req,res)=>{
+        try{
+            const {offerId,categoryId} = req.body
+            const category = await Category.findByIdAndUpdate(
+                {_id:categoryId},
+                {offer:null}
+            )
+            await category.save()
+            res.json({success:true})
+        }catch(err){
+            console.log(err)
+        }
+    }
+
+
+    module.exports = {
     dashboard,
     login,
     logout,
@@ -576,5 +953,22 @@ module.exports = {
     cancelOrder,
     updateStatus,
     orderDetails,
-    approveReturnRequest
-}
+    approveReturnRequest,
+    coupon,
+    addCoupons,
+    addCouponSubmit,
+    blockCoupon,
+    editCoupon,
+    editCouponSubmit,
+    salesReport,
+    salesReportGenerate,
+    allOffers,
+    addOffer,
+    addOfferSubmit,
+    editOffer,
+    editOfferSubmit,
+    applyOffer,
+    removeOffer,
+    applyOfferCategory,
+    removeOfferCategory
+    }
