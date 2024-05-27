@@ -32,6 +32,7 @@
                                             <%= messages.error %>
                                         </div>
                                     <% } %>
+                                    <p class="text-danger"><%=msg%></p>
                                     <div class="form-group">
                                         <label for="register-name-2">Name</label>
                                         <input type="text" class="form-control" id="register-name-2" name="name" required>
@@ -61,7 +62,7 @@
                                         <input class="form-check-input" type="checkbox" id="showPasswordCheckbox" onclick="togglePasswordVisibility()" style="margin-top: 7px;">
                                         <label class="form-check-label" for="showPasswordCheckbox" style="margin-left: 5px;">Show Password</label>
                                     </div>
-                                    <input type="text" value="<%=Referral%>" name="Referral" placeholder="enter referral id">
+                                    <input type="text" value="<%=Referral%>" name="Referral" hidden  placeholder="enter referral id">
                                     <div class="form-footer">
                                         <button type="submit" id="registerBtn" class="btn btn-outline-primary-2">
                                             <span>SIGN UP</span>
@@ -76,10 +77,18 @@
                                     <p class="text-center">or sign up with</p>
                                     <div class="row">
                                         <div class="col-sm-6">
-                                            <a href="/auth/google" class="btn btn-login btn-g">
-                                                <i class="icon-google"></i>
-                                                Sign up With Google
-                                            </a>
+                                            <% if (Referral) { %>
+                                                <a href="/auth/google?referralCode=<%= Referral %>" class="btn btn-login btn-g">
+                                                    <i class="icon-google"></i>
+                                                    Sign up With Google
+                                                </a>
+                                            <% } else { %>
+                                                <a href="/auth/google" class="btn btn-login btn-g">
+                                                    <i class="icon-google"></i>
+                                                    Sign up With Google
+                                                </a>
+                                            <% } %>
+                                            
                                         </div>
                                     </div>
                                 </div>

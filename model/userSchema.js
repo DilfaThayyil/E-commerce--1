@@ -28,8 +28,8 @@ const user = new mongoose.Schema({
         type:Boolean,
         default:false
     },
-    cart:{
-        products:[String]
+    ReferId:{
+        type:String,
     },
     walletHistory: [{
         amount: {

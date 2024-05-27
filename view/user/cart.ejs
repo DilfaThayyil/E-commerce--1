@@ -41,7 +41,25 @@
                                                 </h3><!-- End .product-title -->
                                             </div><!-- End .product -->
                                         </td>
-                                        <td class="price-col"><%= product.productId.DiscountPrice %></td>
+                                            
+                                        <td class="price-col">
+                                            
+                                            <%
+                                                let finalPrice
+                                                const productPrice = parseFloat(product.productId.Price) || 0;
+                                                const productOffer = product.productId.offer ? parseFloat(product.productId.offer.percentage) || 0 : 0;
+                                                const categoryOffer = product.productId.Category && product.productId.Category.offer ? parseFloat(product.productId.Category.offer.percentage) || 0 : 0;                                        
+
+                                                if (product.productId.offer) {
+                                                    finalPrice = Math.floor(productPrice - (productPrice * productOffer / 100));
+                                                } else if (product.productId.Category && product.productId.Category.offer) {
+                                                    finalPrice = Math.floor(productPrice - (productPrice * categoryOffer / 100));
+                                                }
+                                            
+                                            %>
+                                            ₹<%= finalPrice %>
+                                        
+                                        </td>
                                         <td class="quantity-col">
                                             <div class="cart-product-quantity">
                                                 <input type="number" id="qnt-<%= product.productId._id %>" class="form-control" value="<%= product.quantity %>" min="1" max="<%=product.productId.Quantity%>" step="1" data-decimals="0" required onchange="updateQuantity('<%= product.productId._id %>')">

@@ -219,7 +219,23 @@
                                             </div><!-- End .product-cat -->
                                             <h3 class="product-title"><a href="/product/<%=product._id%>"><%=product.Name%></a></h3><!-- End .product-title -->
                                             <div class="product-price">
-                                                <%=product.Price%>
+                                                <s style="font-size: small;"> ₹<%= product.Price %></s>&nbsp; &nbsp;
+                                            
+                                                <% 
+                                                    const productPrice = parseFloat(product.Price) || 0;
+                                                    const productOffer = product.offer ? parseFloat(product.offer.percentage) || 0 : 0;
+                                                    const categoryOffer = product.Category && product.Category.offer ? parseFloat(product.Category.offer.percentage) || 0 : 0;
+                                            
+                                                    let finalPrice = productPrice;
+                                            
+                                                    if (product.offer) {
+                                                        finalPrice = Math.floor(productPrice - (productPrice * productOffer / 100));
+                                                    } else if (product.Category && product.Category.offer) {
+                                                        finalPrice = Math.floor(productPrice - (productPrice * categoryOffer / 100));
+                                                    }
+                                                %>
+                                            
+                                                ₹<%= finalPrice %>
                                             </div><!-- End .product-price -->
                                             <div class="product-nav product-nav-dots">
                                                 

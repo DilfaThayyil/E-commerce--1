@@ -97,7 +97,7 @@ const placeOrder = async (req, res) => {
         const transaction = {
           amount : total,
           description: 'Product purchased',
-          date : new date(),
+          date : new Date(),
           status : 'out'
         }
         user.walletHistory.push(transaction)
@@ -266,51 +266,65 @@ const returnRequest = async (req, res) => {
 
 
 const applyCoupon = async (req, res) => {
-    try {
-      const userId = req.session.user
-      const { couponCode,checkprice } = req.body;
-      console.log(req.body)
-      const coupon = await Coupon.findOne({code:couponCode})
-      console.log(coupon)
-      if (coupon) {
-        const couponid = coupon._id
-        const alreadyUsed = coupon.usedUser.some((user) => user.userid.toString() === userId);
-            
-        if (!alreadyUsed) {
-          if(coupon.minAmount<=checkprice){
-            const currentDate = new Date();
-            if (coupon.expiryDate > currentDate) {
-            const couponName = coupon.name;
-            coupon.usedUser.push({ userid: userId, used: true });
-            await coupon.save();
-            const cartData = await Cart.findOne({ userid: userId }).populate({
-                path: 'products.productId',
-                model: 'Products'
-            });
-              const totalPriceTotal = cartData.products.reduce((total, product) => {
-                return total + product.totalPrice;
-              }, 0);
-  
-             const discount =totalPriceTotal-coupon.discountAmount
-             res.json({ success: `${couponName} `,totalPriceTotal,discount,couponid });
-            }else{
-              res.json({ already: 'Coupon date expired' });
-            }
-          }else{
-            res.json({minimum:`Coupon not added Minimum purchase ₹ ${coupon.minAmount}`})
-          }
-  
-        } else {
-          res.json({ already: 'Coupon already used by this user' });
-        }
-      } else {
-        res.json({ error: 'Coupon not found' });
-      }
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Internal Server Error' });
+  try {
+    const userId = req.session.user;
+    const { couponCode, checkprice } = req.body;
+    console.log(req.body);
+    
+    const coupon = await Coupon.findOne({ code: couponCode });
+    console.log(coupon);
+    
+    if (!coupon) {
+      return res.json({ error: 'Coupon not found' });
     }
-  };
+    
+    const alreadyUsed = coupon.usedUser.some((user) => user.userid.toString() === userId);
+    if (alreadyUsed) {
+      return res.json({ already: 'Coupon already used by this user' });
+    }
+    
+    if (coupon.minAmount > checkprice) {
+      return res.json({ minimum: `Coupon not added. Minimum purchase ₹${coupon.minAmount}` });
+    }
+    
+    const currentDate = new Date();
+    if (coupon.expiryDate <= currentDate) {
+      return res.json({ already: 'Coupon date expired' });
+    }
+
+    const cartData = await Cart.findOne({ userid: userId }).populate({
+      path: 'products.productId',
+      model: 'Products'
+    });
+
+    const totalPriceTotal = cartData.products.reduce((total, product) => total + product.totalPrice, 0);
+
+    // Calculate 10% of the total price
+    const maxDiscount = totalPriceTotal * 0.10;
+    
+    // Use the lesser of the coupon discount amount or 10% of the total price
+    const appliedDiscount = Math.min(coupon.discountAmount, maxDiscount);
+    
+    const discountedPrice = totalPriceTotal - appliedDiscount;
+
+    // Ensure the discounted price is not less than 10
+    if (discountedPrice < 10) {
+      return res.json({ error: 'Coupon cannot be applied as it reduces the order price below ₹10' });
+    }
+
+   
+    res.json({ 
+      success: `Coupon ${coupon.name} applied successfully`, 
+      totalPriceTotal, 
+      discountedPrice, 
+      appliedDiscount, 
+      couponid: coupon._id 
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Internal Server Error' });
+  }
+};
 
 
 module.exports={
