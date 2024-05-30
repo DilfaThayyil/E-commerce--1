@@ -36,8 +36,12 @@ userRouter.post('/resetPasswordSubmit',userController.resetPasswordSubmit)
 
 userRouter.get('/userProfile',middleware.notLoged,userController.userProfile)
 userRouter.post('/editProfile',userController.editProfile)
+
+
 userRouter.get('/viewOrder/:id',orderController.viewOrder)
 userRouter.post('/cancelOrder/:orderid/:productid',orderController.cancelOrder)
+userRouter.get('/downloadInvoice/:id',orderController.invoiceDownload)
+
 userRouter.post('/editAddress',userController.editAddress)
 userRouter.post('/profileAddAddress',userController.profileAddAddress)
 userRouter.delete('/removeAddress/:id',userController.removeAddress)

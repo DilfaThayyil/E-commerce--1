@@ -39,8 +39,9 @@
                           <th>Coupon Name</th>
                           <th>Coupon Code</th>
                           <th>Expr Date</th>
-                          <th>More details</th>
-                          <th>Action</th>
+                          <th>More info</th>
+                          <th>Modify</th>
+                          <th>List/Unlist</th>
                         </tr>
                       </thead>
                     <tbody>
@@ -53,8 +54,8 @@
                           <% const formattedDate = new Date(coupon.expiryDate).toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' }); %>
                           <td><%=formattedDate%></td>
                           <td>
-                            <button type="button" class="btn btn-primary" data-toggle="modal" data-target="#exampleModal<%=coupon._id%>">
-                              Show
+                            <button type="button" class="btn btn-info" data-toggle="modal" data-target="#exampleModal<%=coupon._id%>">
+                              <i class="mdi mdi-alert-circle-outline" style="font-size: 15px;"></i>
                             </button>
                           </td> 
                           <div class="modal fade" id="exampleModal<%=coupon._id%>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -77,16 +78,22 @@
                               </div>
                             </div>
                           </div>
-                          
                           <td>
-                            <a class="btn btn-primary mr-2" href="/admin/editCoupon/<%=coupon._id%>">Edit</a>
+                            <a class="btn btn-primary mr-2" href="/admin/editCoupon/<%=coupon._id%>"><i class="mdi mdi-pencil"></i></a>
+                          </td>
+                          <td>
                             <%if(coupon.status === true){%>
-                              <a class="btn btn-danger" onclick="blockCoupon('<%=coupon._id%>')">Block</a>
+                              <a class="btn btn-danger" onclick="blockCoupon('<%=coupon._id%>')"><i class="mdi mdi-close-outline"></i>Block</a>
                             <%}else{%>
                               <a class="btn btn-success" onclick="unBlockCoupon('<%=coupon._id%>')">unblock</a>
                             <%}%> 
                           </td>
-                        </tr>
+                          <td>
+                            <a onclick="deleteCoupon('<%=coupon._id%>')"><i class="mdi mdi-delete" style="font-size: 20px; color: red;"></i></a>
+                          </td>
+
+                          
+                          
 
 
                        <%})%>
@@ -129,12 +136,15 @@
 
 
 
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
-    <script>
+<script>
 
 
-function blockCoupon(couponId) {
+    
+
+
+    function blockCoupon(couponId) {
       Swal.fire({
         title: 'Are you sure?',
         text: 'You are about to block this Coupon!',
@@ -188,7 +198,42 @@ function blockCoupon(couponId) {
     }
 
 
-    </script>
+    function deleteCoupon(couponId){
+      Swal.fire({
+        title: 'Are you sure?',
+        text: 'You won\'t be able to revert this!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          fetch(`/admin/deleteCoupon/${couponId}`, {
+            method: 'DELETE', 
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+
+          })
+          .then(data => {
+            window.location.reload()
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
+        }
+      });
+    }    
+
+
+</script>
 
   
 

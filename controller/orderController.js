@@ -11,6 +11,7 @@ require('dotenv').config()
 const Razorpay = require('razorpay')
 const {key_id,key_secret} = process.env
 const crypto = require('crypto')
+const easyinvoice = require('easyinvoice');
 
 
 
@@ -45,9 +46,12 @@ const placeOrder = async (req, res) => {
     try {
         const userid = req.session.user
         const { selectedValue, total ,couponid ,paymentMethod} = req.body;
+        
+        console.log(req.body)
 
+        
         if(couponid){
-          const coupon = await Coupon.findById(couponid)
+          const coupon = await Coupon.findOne({code:couponid})
           console.log(coupon)
           if(coupon){
             coupon.usedUser.push({user_id:userid})
@@ -299,20 +303,19 @@ const applyCoupon = async (req, res) => {
 
     const totalPriceTotal = cartData.products.reduce((total, product) => total + product.totalPrice, 0);
 
-    // Calculate 10% of the total price
     const maxDiscount = totalPriceTotal * 0.10;
     
-    // Use the lesser of the coupon discount amount or 10% of the total price
     const appliedDiscount = Math.min(coupon.discountAmount, maxDiscount);
     
     const discountedPrice = totalPriceTotal - appliedDiscount;
 
-    // Ensure the discounted price is not less than 10
     if (discountedPrice < 10) {
       return res.json({ error: 'Coupon cannot be applied as it reduces the order price below ₹10' });
     }
 
-   
+   console.log(totalPriceTotal, 
+    discountedPrice, 
+    appliedDiscount, )
     res.json({ 
       success: `Coupon ${coupon.name} applied successfully`, 
       totalPriceTotal, 
@@ -326,6 +329,128 @@ const applyCoupon = async (req, res) => {
   }
 };
 
+// const invoiceDownload= async (req,res)=>{
+//   try {
+//     const orderId = req.params.id;
+//     const ordercheck = await Order.findOne({ _id: orderId });
+
+//     if (!ordercheck) {
+//         return res.status(404).send('Order not found');
+//     }
+
+//     const products = ordercheck.products.map(product => ({
+//         quantity: product.quantity,
+//         description: product.Description,
+//         price: product.total,
+//         total: product.total
+//     }));
+//     const data = {
+//         "currency": "USD",
+//         "marginTop": 25,
+//         "marginRight": 25,
+//         "marginLeft": 25,
+//         "marginBottom": 25,
+//         "logo": "https://www.easyinvoice.cloud/img/logo.png",
+//         "sender": {
+//             "company": "E-comm"
+
+//         },
+//         "client": {
+//             "company":ordercheck.address
+//         },
+//         "invoiceNumber": `INV-${orderId}`, 
+//         "invoiceDate": new Date(ordercheck.date).toLocaleDateString('en-US'),
+//         "products": products,
+//         "bottomNotice": "Kindly pay your invoice within 15 days."
+//     };
+
+//     const result = await easyinvoice.createInvoice(data);
+
+//     if (!result.pdf || !result.pdf.length) {
+//         throw new Error('Failed to generate PDF document.');
+//     }
+
+//     const fileName = `invoice-${orderId}.pdf`;
+
+//     res.setHeader('Content-Type', 'application/pdf');
+//     res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
+//     res.setHeader('Content-Length', result.pdf.length);
+//     res.send(Buffer.from(result.pdf, 'base64'));
+// } catch (err) {
+//     console.error(err);
+//     res.status(500).send('Internal Server Error');
+// }
+// }
+
+
+const invoiceDownload = async (req, res) => {
+    try {
+        const orderId = req.params.id;
+        const order = await Order.findOne({ _id: orderId }).populate({
+          path: 'products.products',
+          model: 'Products'
+        })
+
+        if (!order) {
+            return res.status(404).send('Order not found');
+        }
+
+        const products = order.products.map(item => ({
+            quantity: item.quantity,
+            description: item.products.Name,
+            price: item.products.Price, 
+            total: item.total
+        }));
+
+        const data = {
+            "documentTitle": "INVOICE",
+            "currency": "USD",
+            "taxNotation": "vat",
+            "marginTop": 25,
+            "marginRight": 25,
+            "marginLeft": 25,
+            "marginBottom": 25,
+            "logo": "https://www.easyinvoice.cloud/img/logo.png",
+            "sender": {
+                "company": "E-comm"
+            },
+            "client": {
+                "company": order.address
+            },
+            "invoiceNumber": `INV-${orderId}`,
+            "invoiceDate": new Date(order.date).toLocaleDateString('en-US'),
+            "products": products,
+            "bottomNotice": "Kindly pay your invoice within 15 days.",
+            "settings": {
+                "background": "https://public.easyinvoice.cloud/img/watermark-draft.jpg"
+            },
+            "translate": {
+                "invoiceNumber": "Invoice No",
+                "invoiceDate": "Invoice Date",
+                "products": "Product",
+                "quantity": "Qty",
+                "price": "Price",
+                "total": "Total"
+            }
+        };
+
+        const result = await easyinvoice.createInvoice(data);
+
+        if (!result.pdf || !result.pdf.length) {
+            throw new Error('Failed to generate PDF document.');
+        }
+
+        const fileName = `invoice-${orderId}.pdf`;
+
+        res.setHeader('Content-Type', 'application/pdf');
+        res.setHeader('Content-Disposition', `attachment; filename=${fileName}`);
+        res.setHeader('Content-Length', result.pdf.length);
+        res.send(Buffer.from(result.pdf, 'base64'));
+    } catch (err) {
+        console.error(err);
+        res.status(500).send('Internal Server Error');
+    }
+}
 
 module.exports={
     placeOrder,
@@ -335,5 +460,6 @@ module.exports={
     returnRequest,
     applyCoupon,
     generateRazorpay,
-    verifyPayment
+    verifyPayment,
+    invoiceDownload
 }

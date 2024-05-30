@@ -30,6 +30,72 @@ app.use(express.static(path.join(__dirname, "public")));
 
 
 
+
+        
+
+
+
+const dashboard =async(req,res)=>{
+    try{
+        
+   
+        const categoryQuantities = await Order.aggregate([
+            { $unwind: "$products" },
+            { $lookup: { from: 'products', localField: 'products.products', foreignField: '_id', as: 'productInfo' } },
+            { $unwind: "$productInfo" },
+            { $lookup: { from: 'categories', localField: 'productInfo.Category', foreignField: '_id', as: 'categoryInfo' } },
+            { $unwind: "$categoryInfo" },
+            {
+                $group: {
+                    _id: "$categoryInfo._id",
+                    name: { $first: "$categoryInfo.Name" }, // Assuming the category has a Name field
+                    totalQuantity: { $sum: "$products.quantity" }
+                }
+            }
+        ]);
+
+        const allCategories = await Category.find({});
+
+        const mergedCategories = allCategories.map(category => {
+            const found = categoryQuantities.find(cq => cq._id.toString() === category._id.toString());
+            return {
+                _id: category._id,
+                name: category.Name,
+                totalQuantity: found ? found.totalQuantity : 0
+            };
+        });
+
+        mergedCategories.sort((a, b) => b.totalQuantity - a.totalQuantity);
+        
+        const mostSoldProducts = await Order.aggregate([
+            { $unwind: "$products" },
+            { $group: { _id: "$products.products", totalQuantity: { $sum: "$products.quantity" } } },
+            { $sort: { totalQuantity: -1 } },
+            { $limit: 10 }
+        ]);
+        const allProduct = await Product.find({});
+
+        const mergedProducts = allProduct.map(product => {
+            const found = mostSoldProducts.find(cq => cq._id.toString() === product._id.toString());
+            return {
+                _id: product._id,
+                name: product.Name,
+                image: product.Images[0],
+                totalQuantity: found ? found.totalQuantity : 0
+            };
+        });
+
+        mergedProducts.sort((a, b) => b.totalQuantity - a.totalQuantity);
+
+
+        console.log(mostSoldProducts,categoryQuantities,mergedCategories,mergedProducts)
+        res.render('dashboard',{mostSoldProducts,mergedProducts,mergedCategories})
+    }catch(err){
+        console.log(err);
+    }
+}
+
+
 const login = (req,res)=>{
     try{
         let msg=req.flash('err')
@@ -352,6 +418,16 @@ const addCategorySubmit = async(req,res)=>{
     }
 }
 
+const deleteCategory = async(req,res)=>{
+    try{
+        const categoryId = req.params.id
+        const deleteCategory = await Category.deleteOne({_id:categoryId})
+        res.json({success:"deleted"})
+    }catch(err){
+        console.log(err);
+    }
+}
+
 const blockUser = async (req,res)=>{
     try{
         const userId = req.params.id
@@ -606,6 +682,16 @@ const imagedelete = async (req, res) => {
         }
     }
 
+    const deleteCoupon = async(req,res)=>{
+        try{
+            const couponId = req.params.id
+            const deleteCoupon = await Coupon.deleteOne({_id:couponId})
+            res.json({success:"deleted"})
+        }catch(err){
+            console.log(err)
+        }
+    }
+
 
     const editCoupon = async(req,res)=>{
         try{
@@ -646,13 +732,7 @@ const imagedelete = async (req, res) => {
     }
   
 
-    const dashboard =(req,res)=>{
-        try{
-            res.render('dashboard')
-        }catch(err){
-            console.log(err);
-        }
-    }
+    
 
 
     const salesReport = async(req,res)=>{
@@ -941,6 +1021,7 @@ const imagedelete = async (req, res) => {
     editProductSubmit,
     addCategory,
     addCategorySubmit,
+    deleteCategory,
     blockUser,
     unBlockUser,
     blockProduct,
@@ -958,6 +1039,7 @@ const imagedelete = async (req, res) => {
     addCoupons,
     addCouponSubmit,
     blockCoupon,
+    deleteCoupon,
     editCoupon,
     editCouponSubmit,
     salesReport,

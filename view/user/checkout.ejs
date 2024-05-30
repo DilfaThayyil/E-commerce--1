@@ -207,7 +207,7 @@
                                     </tr><!-- End .summary-subtotal -->
                                     <tr>
                                         <td>Shipping:</td>
-                                        <td>Free shipping</td>
+                                        <td id="shipping">₹50</td>
                                     </tr>
                                     
                                     
@@ -230,7 +230,9 @@
                                 </table><!-- End .table table-summary -->
                                 
                                 <select name="paymentMethod" id="payment">
-                                    <option value="Cash on delivery" >Cash on delivery</option>
+                                    <%if(totalPrice < 1000){%>
+                                        <option value="Cash on delivery" >Cash on delivery</option>
+                                    <%}%>
                                     <option value="Razorpay">Razorpay</option>
                                     <%if(user.wallet > totalPrice){%>
                                         <option value="wallet">Wallet</option>
@@ -293,6 +295,7 @@
 
             const data = await response.json();
 
+            console.log(data);
             if (data.success) {
                 document.getElementById('cancelcoupon').style.maxWidth = "150px"; 
                 document.getElementById('applied').innerHTML="Coupon successfully Added"
@@ -306,7 +309,7 @@
                 document.getElementById('org').innerHTML= `₹ ${data.totalPriceTotal}`
                 document.getElementById('org').style.textDecoration = 'line-through';
                 document.getElementById('offer').innerHTML="Offer Price"
-                document.getElementById('discount').innerHTML=data.discount
+                document.getElementById('discount').innerHTML= ` ${data.discountedPrice}`
             } else if (data.already) {
             document.getElementById('already').innerHTML=data.already   
             } else if(data.minimum) {
@@ -315,6 +318,7 @@
                 document.getElementById('already').innerHTML=data.error
             }
         } catch (error) {
+            document.getElementById('already').innerHTML='Already Used'
         console.error('Error:', error);
         }
     });
@@ -434,6 +438,7 @@
             const selectedValue = document.getElementById("addressSelect").value;
 		    let  total=document.getElementById('discount').textContent.trim()
             total = parseFloat(total)
+            total += 50 //adding up the shipping charge
             const couponid = document.getElementById('checkout-discount-input').value
             const paymentMethod = document.getElementById('payment').value
             if(isNaN(total)){
@@ -498,15 +503,15 @@
                     
                     let rzp1 = new Razorpay(options);
                     rzp1.open()
-                    } else {
-                        Swal.fire({
-                            title: 'Order Processing Failed',
-                            text: 'An error occurred while processing the order.',
-                            icon: 'error',
-                            confirmButtonText: 'OK'
-                        });
+                } else {
+                    Swal.fire({
+                        title: 'Order Processing Failed',
+                        text: 'An error occurred while processing the order.',
+                        icon: 'error',
+                        confirmButtonText: 'OK'
+                    });
                         
-                    }
+                }
             })
             .catch(error => {
             console.error('Error:', error);

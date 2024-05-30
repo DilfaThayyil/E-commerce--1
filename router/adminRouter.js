@@ -19,6 +19,7 @@ const storage = multer.diskStorage({
     }
   });
   
+
   const upload = multer({ storage: storage });
   adminRouter.post('/addImage', upload.single('image'), async (req, res) => {
     try {
@@ -71,6 +72,7 @@ adminRouter.post('/addCategorySubmit',adminController.addCategorySubmit)
 adminRouter.post('/blockcategory/',adminController.blockCategory)
 adminRouter.get('/editcategory/:id',adminController.editCategory)
 adminRouter.post('/editcategorysubmit/:id',adminController.editCategorySubmit)
+adminRouter.delete('/deleteCategory/:id',adminController.deleteCategory)
 
 
 adminRouter.get('/allorders',adminController.allOrders)
@@ -86,6 +88,7 @@ adminRouter.post('/addCouponSubmit',adminController.addCouponSubmit)
 adminRouter.post('/blockCoupon',adminController.blockCoupon)
 adminRouter.get('/editCoupon/:id',adminController.editCoupon)
 adminRouter.post('/editCouponSubmit/:id',adminController.editCouponSubmit)
+adminRouter.delete('/deleteCoupon/:id',adminController.deleteCoupon)
 
 
 adminRouter.get('/salesReport',adminController.salesReport)

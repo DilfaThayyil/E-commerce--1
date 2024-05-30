@@ -52,7 +52,6 @@ const register = (req,res)=>{
 const registerSubmit = async (req,res)=>{
     try{
         const Referral = req.body.Referral
-        console.log(Referral);
         const {name,email,mobileNumber,password} = req.body
         const check = await User.findOne({Email:email})
         if(check){
@@ -171,11 +170,9 @@ const otppage = async(req,res)=>{
 
 const otpSubmit = async (req, res) => {
     try {
-        console.log("ghghghg : ", req.session.userData)
         const { digit1, digit2, digit3, digit4 } = req.body;
         const otpnumber =  digit1 + digit2 + digit3 + digit4;
         const user = req.session.userData;
-        console.log(req.session.userData)
         console.log(otpnumber);
         const check = await otpSchema.findOne({ email: user.Email });
         
@@ -497,7 +494,7 @@ const changePassword = async (req, res) => {
         user.password = hashedNewPassword;
         await user.save();
         
-        res.json({ message: "Password changed successfully" });
+        res.json({success: true, message: 'Password changed successfully' });
 
 
     } catch (err) {
