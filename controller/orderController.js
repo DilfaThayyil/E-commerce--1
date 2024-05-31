@@ -11,10 +11,7 @@ require('dotenv').config()
 const Razorpay = require('razorpay')
 const {key_id,key_secret} = process.env
 const crypto = require('crypto')
-<<<<<<< HEAD
 const easyinvoice = require('easyinvoice');
-=======
->>>>>>> a35da3d (offer added)
 
 
 
@@ -49,18 +46,12 @@ const placeOrder = async (req, res) => {
     try {
         const userid = req.session.user
         const { selectedValue, total ,couponid ,paymentMethod} = req.body;
-<<<<<<< HEAD
         
         console.log(req.body)
 
         
         if(couponid){
           const coupon = await Coupon.findOne({code:couponid})
-=======
-
-        if(couponid){
-          const coupon = await Coupon.findById(couponid)
->>>>>>> a35da3d (offer added)
           console.log(coupon)
           if(coupon){
             coupon.usedUser.push({user_id:userid})
@@ -110,11 +101,7 @@ const placeOrder = async (req, res) => {
         const transaction = {
           amount : total,
           description: 'Product purchased',
-<<<<<<< HEAD
           date : new Date(),
-=======
-          date : new date(),
->>>>>>> a35da3d (offer added)
           status : 'out'
         }
         user.walletHistory.push(transaction)
@@ -283,7 +270,6 @@ const returnRequest = async (req, res) => {
 
 
 const applyCoupon = async (req, res) => {
-<<<<<<< HEAD
   try {
     const userId = req.session.user;
     const { couponCode, checkprice } = req.body;
@@ -465,54 +451,6 @@ const invoiceDownload = async (req, res) => {
         res.status(500).send('Internal Server Error');
     }
 }
-=======
-    try {
-      const userId = req.session.user
-      const { couponCode,checkprice } = req.body;
-      console.log(req.body)
-      const coupon = await Coupon.findOne({code:couponCode})
-      console.log(coupon)
-      if (coupon) {
-        const couponid = coupon._id
-        const alreadyUsed = coupon.usedUser.some((user) => user.userid.toString() === userId);
-            
-        if (!alreadyUsed) {
-          if(coupon.minAmount<=checkprice){
-            const currentDate = new Date();
-            if (coupon.expiryDate > currentDate) {
-            const couponName = coupon.name;
-            coupon.usedUser.push({ userid: userId, used: true });
-            await coupon.save();
-            const cartData = await Cart.findOne({ userid: userId }).populate({
-                path: 'products.productId',
-                model: 'Products'
-            });
-              const totalPriceTotal = cartData.products.reduce((total, product) => {
-                return total + product.totalPrice;
-              }, 0);
-  
-             const discount =totalPriceTotal-coupon.discountAmount
-             res.json({ success: `${couponName} `,totalPriceTotal,discount,couponid });
-            }else{
-              res.json({ already: 'Coupon date expired' });
-            }
-          }else{
-            res.json({minimum:`Coupon not added Minimum purchase ₹ ${coupon.minAmount}`})
-          }
-  
-        } else {
-          res.json({ already: 'Coupon already used by this user' });
-        }
-      } else {
-        res.json({ error: 'Coupon not found' });
-      }
-    } catch (err) {
-      console.error(err);
-      res.status(500).json({ error: 'Internal Server Error' });
-    }
-  };
-
->>>>>>> a35da3d (offer added)
 
 module.exports={
     placeOrder,
@@ -522,10 +460,6 @@ module.exports={
     returnRequest,
     applyCoupon,
     generateRazorpay,
-<<<<<<< HEAD
     verifyPayment,
     invoiceDownload
-=======
-    verifyPayment
->>>>>>> a35da3d (offer added)
 }
