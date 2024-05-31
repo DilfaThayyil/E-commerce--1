@@ -25,7 +25,8 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <% if(cart && cart.products) { %>
+                                    
+                                    <%if(cart && cart.products) { %>
                                     <% cart.products.forEach((product) => { %>
                                     <tr>
                                         <td class="product-col">
@@ -40,12 +41,31 @@
                                                 </h3><!-- End .product-title -->
                                             </div><!-- End .product -->
                                         </td>
-                                        <td class="price-col"><%= product.productId.DiscountPrice %></td>
+                                            
+                                        <td class="price-col">
+                                            
+                                            <%
+                                                let finalPrice
+                                                const productPrice = parseFloat(product.productId.Price) || 0;
+                                                const productOffer = product.productId.offer ? parseFloat(product.productId.offer.percentage) || 0 : 0;
+                                                const categoryOffer = product.productId.Category && product.productId.Category.offer ? parseFloat(product.productId.Category.offer.percentage) || 0 : 0;                                        
+
+                                                if (product.productId.offer) {
+                                                    finalPrice = Math.floor(productPrice - (productPrice * productOffer / 100));
+                                                } else if (product.productId.Category && product.productId.Category.offer) {
+                                                    finalPrice = Math.floor(productPrice - (productPrice * categoryOffer / 100));
+                                                }
+                                            
+                                            %>
+                                            ₹<%= finalPrice %>
+                                        
+                                        </td>
                                         <td class="quantity-col">
                                             <div class="cart-product-quantity">
                                                 <input type="number" id="qnt-<%= product.productId._id %>" class="form-control" value="<%= product.quantity %>" min="1" max="<%=product.productId.Quantity%>" step="1" data-decimals="0" required onchange="updateQuantity('<%= product.productId._id %>')">
                                             </div><!-- End .cart-product-quantity -->
                                         </td>
+                                        
                                         <td class="total-col" id="total-<%= product.productId._id %>"><%= product.totalPrice %></td>
                                         <td class="remove-col"><button onclick="removeFromCart('<%= product.productId._id %>')" class="btn-remove"><i class="icon-close"></i></button></td>
                                     </tr>

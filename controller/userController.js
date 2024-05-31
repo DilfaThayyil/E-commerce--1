@@ -6,15 +6,25 @@ const otpSchema = require('../model/otp')
 const Cart = require('../model/cart')
 const nodemailer = require('nodemailer');
 const Order = require('../model/orderSchema')
+const Coupon = require('../model/couponSchema')
+const Wishlist = require('../model/wishlistSchema')
+const Offer = require('../model/offerSchema')
+
+
+
 
 
 
 const home = async(req,res)=>{
     try{
         const user=req.session.name
-        const products = await Product.find({Status:'active'}).populate('Category')
+        const products = await Product.find({Status:'active'}).populate({
+            path: 'Category',
+            populate: { path: 'offer' }
+        }).populate('offer')
+        const offer = await Offer.find()
         const product = products.filter(product => product.Category.Status !== "blocked");
-        res.render('home',{product,user})
+        res.render('home',{product,user,offer})
     }catch(err){
         console.log(err);
     }
@@ -31,7 +41,9 @@ const login = (req,res)=>{
 
 const register = (req,res)=>{
     try{
-        res.render('register')
+        const msg = req.flash('err')
+        const Referral = req.query.referralCode
+        res.render('register',{Referral,msg})
     }catch(err){
         console.log(err);
     }
@@ -39,23 +51,28 @@ const register = (req,res)=>{
 
 const registerSubmit = async (req,res)=>{
     try{
+        const Referral = req.body.Referral
         const {name,email,mobileNumber,password} = req.body
         const check = await User.findOne({Email:email})
         if(check){
             const message = "email already exist"
-            req.flash('error',message)
+            req.flash('err',message)
             return res.redirect('/register')
         }else{  
            const bcryptPassword=  await bcrypt.hash(password,10)
+           
             const user = {
                 Name : name,
                 Email : email,
                 PhoneNumber : mobileNumber,
-                password : bcryptPassword 
+                password : bcryptPassword ,
+                ReferId:name+Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000
+
             }
-            
             otp(email,name)
-            
+           if(Referral){
+            req.session.Referral=Referral
+           }
             req.session.userData = user
             res.redirect(`/otp`)
         }
@@ -162,6 +179,24 @@ const otpSubmit = async (req, res) => {
         if (check.otp == otpnumber) {
             const insertuser = new User(user);
             await insertuser.save();
+
+            const ref=req.session.Referral
+            if(ref){
+                const user=await User.findOne({ReferId:ref})
+                 user.wallet+=250
+                 insertuser.wallet+=250
+                 const transaction = {
+                    amount : 250,
+                    description: 'By Referred',
+                    date : new Date(),
+                    status : 'in'
+                  }
+                  user.walletHistory.push(transaction)
+                  insertuser.walletHistory.push(transaction)
+                 await insertuser.save();
+                 await user.save()
+            }
+            
             req.session.user = insertuser._id;
             req.session.name = insertuser.Name;
             req.session.userData = null;
@@ -342,12 +377,14 @@ const resetPasswordSubmit=async(req,res)=>{
 const userProfile = async(req,res)=>{
     try{
         const userid = req.session.user
-        const orders = await Order.find({userid:userid}).populate({
+        let orders = await Order.find({userid:userid}).populate({
             path:"products.products",
             model:"Products"
         })
+        const coupon = await Coupon.find()
+        orders = orders.sort((a, b) => b.date - a.date)
         const user = await User.findOne({_id:userid})
-        res.render('profile',{orders,user})
+        res.render('profile',{orders,user,coupon})
     }catch(err){
         console.log(err);
     }
@@ -437,25 +474,28 @@ const removeAddress=async (req,res)=>{
 const changePassword = async (req, res) => {
     try {
         const { currentPassword, newPassword } = req.body;
-        console.log(req.body);
-        const userId = req.session.user;
-        const user = await User.findOne({ _id: userId });
+        const oldPassword = req.body.currentPassword
 
+        const userId = req.session.user;
+        const user = await User.findById(userId);
         if (!user) {
             return res.status(404).json({ error: "User not found" });
+        }
+        if (!user.password) {
+            return res.status(400).json({ success: false, message: 'Password is missing from user data' });
         }
 
         const passwordMatch = await bcrypt.compare(currentPassword,user.password);
         if (!passwordMatch) {
             return res.status(400).json({ error: "Incorrect current password" });
         }
-
         const hashedNewPassword = await bcrypt.hash(newPassword, 10);
 
         user.password = hashedNewPassword;
         await user.save();
         
-        res.json({ message: "Password changed successfully" });
+        res.json({success: true, message: 'Password changed successfully' });
+
 
     } catch (err) {
         console.error(err);
@@ -463,6 +503,86 @@ const changePassword = async (req, res) => {
     }
 };
 
+
+
+const wishlist = async(req,res)=>{
+    try{
+        const userId = req.session.user
+        const wishlist = await Wishlist.findOne({userid:userId}).populate({
+            path:"products.productId",
+            model:"Products",
+            populate: [
+                { path: 'offer' },
+                { 
+                    path: 'Category',
+                    populate: { path: 'offer' }
+                }
+            ]
+        })
+        if(!wishlist){
+            return res.render('wishlist',{wishlist:null})
+        }
+        res.render('wishlist',{wishlist})
+    }catch(err){
+        console.log(err)
+    }
+}
+
+
+const addToWishlist =async(req,res)=>{
+    try{
+        const productId = req.params.id
+        const userId = req.session.user
+        const check = await Product.findById(productId).populate({
+            path: 'Category',
+            populate: { path: 'offer' }
+        }).populate('offer');
+        
+        if(!userId){
+            res.json({error:'User not authenticated'})
+        }
+        const userWishlist = await Wishlist.findOne({userid:userId})
+        let product = {
+            productId : productId
+        }
+
+        if(!userWishlist){
+            const newWishlist = new Wishlist({
+                userid : userId,
+                products : [product]
+            })
+            await newWishlist.save()
+        }else{
+            const productIndex = userWishlist.products.findIndex(product => product.productId.toString() === productId);
+            if(productIndex === -1){
+                userWishlist.products.push(product)
+            }
+            
+            await userWishlist.save()
+        }
+        res.json({message:'Product added to wishlist successfully'})
+    }catch(err){
+        console.log(err)
+    }
+}
+
+const removeFromWish = async(req,res)=>{
+    try{
+        const productId = req.params.id
+        const result = await Wishlist.updateOne(
+            { "products.productId": productId },
+            { $pull: { products: { productId: productId } } }
+        )
+
+        if(result.deletedCount > 0){
+            res.json({message:"Product removed from wishlist successfully"})
+        }else{
+            res.json({error: "Product not found in wishlist"})
+        }
+    }catch(err){
+        console.log(err)
+    }
+}
 
 
 
@@ -487,5 +607,8 @@ module.exports={
     editAddress,
     profileAddAddress,
     removeAddress,
-    changePassword
+    changePassword,
+    wishlist,
+    addToWishlist,
+    removeFromWish
 }

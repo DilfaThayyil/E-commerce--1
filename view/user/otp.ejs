@@ -67,7 +67,7 @@
 <script>
   const inputs = document.querySelectorAll('.otp-input-container input');
 
-  inputs.forEach((input, index) => {
+    inputs.forEach((input, index) => {
       input.addEventListener('input', (event) => {
           const target = event.target;
           const value = target.value.trim();
@@ -97,7 +97,7 @@
 
 <script>
     
-    let timeRemaining = 30;
+    let timeRemaining = 120;
     let timerElement = document.getElementById('timer');
     
     
@@ -170,7 +170,7 @@ async function resend(){
             document.getElementById('resend').style.display="none"
             const msg=document.getElementById('email')
             msg.textContent="Please check your mail"
-            let timeRemaining = 30;
+            let timeRemaining = 120;
          let timerElement = document.getElementById('timer');
     
     

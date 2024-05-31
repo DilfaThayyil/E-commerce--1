@@ -30,6 +30,13 @@ const order = new mongoose.Schema({
             },
             
             }],
+    paymentMode:{
+        type:String
+    },
+    paymentStatus:{
+        type:String,
+        default:'Pending'
+    },
     total: {
         type: Number
     },

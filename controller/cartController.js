@@ -6,15 +6,30 @@ const otpSchema = require('../model/otp')
 const Cart = require('../model/cart')
 const nodemailer = require('nodemailer');
 const Order = require('../model/orderSchema')
+const Coupon = require('../model/couponSchema')
+require('dotenv').config()
+const Razorpay = require('razorpay')
+const {key_id,key_secret} = process.env
+const crypto = require('crypto')
+
+
 
 
 const cart = async(req,res)=>{
     try{
         const userId = req.session.user
-        const cart = await Cart.findOne({userid:userId}).populate({
-            path:"products.productId",
-            model:"Products"
-        })
+        const cart = await Cart.findOne({ userid: userId }).populate({
+            path: 'products.productId',
+            model: 'Products',
+            populate: [
+                { path: 'offer' },
+                { 
+                    path: 'Category',
+                    populate: { path: 'offer' }
+                }
+            ]
+        });
+
         if (!cart) {
             return res.render('cart', { cart: null, totalPrice: 0, subtotal: 0 });
         }
@@ -24,7 +39,7 @@ const cart = async(req,res)=>{
         }, 0);
         subtotal = totalPrice
         
-        res.render('cart',{cart,totalPrice,subtotal})
+        res.render('cart',{cart,totalPrice,subtotal })
     }catch(err){
         console.log(err);
     }
@@ -33,36 +48,72 @@ const cart = async(req,res)=>{
 
 const addToCart = async (req, res) => {
     try {
-        const productId = req.params.id
-        const userId = req.session.user
-        const quantity=req.params.qnt
-        const check = await Product.findById(productId)
+        const productId = req.params.id;
+        const userId = req.session.user;
+        const quantity = parseInt(req.params.qnt, 10);
+
         if (!userId) {
-             res.json({ error: 'User not authenticated' });
-        }    
-        const userCart = await Cart.findOne({userid:userId});
-        let PRODUCT={
-            productId:productId,
-            quantity:quantity,
-            totalPrice:quantity*check.DiscountPrice
+            return res.json({ error: 'User not authenticated' });
         }
+
+        const productToCart = await Product.findById(productId).populate({
+            path: 'Category',
+            populate: { path: 'offer' }
+        }).populate('offer');
+
+        if (!productToCart) {
+            return res.json({ error: 'Product not found' });
+        }
+
+        let productPrice;
+        if (productToCart.offer) {
+            productPrice = Math.floor(productToCart.Price - (productToCart.Price * productToCart.offer.percentage / 100));
+        } else if (productToCart.Category.offer) {
+            productPrice = Math.floor(productToCart.Price - (productToCart.Price * productToCart.Category.offer.percentage / 100));
+        } else {
+            productPrice = productToCart.Price;
+        }
+
+        const userCart = await Cart.findOne({ userid: userId });
+
         if (!userCart) {
-            
-             const userCart = new Cart({
-                userid:userId,
-                products:[PRODUCT]
-               
-             })
-             await userCart.save()
-        }else{
-            userCart.products.push(PRODUCT)
-            await userCart.save()
+            // If cart does not exist, create a new cart with the product
+            const newCart = new Cart({
+                userid: userId,
+                products: [{
+                    productId: productId,
+                    quantity: quantity,
+                    totalPrice: quantity * productPrice
+                }]
+            });
+            await newCart.save();
+        } else {
+            // If cart exists, check if product is already in the cart
+            const productIndex = userCart.products.findIndex(product => product.productId.toString() === productId);
+
+            if (productIndex === -1) {
+                // If product is not in the cart, add it as a new entry
+                userCart.products.push({
+                    productId: productId,
+                    quantity: quantity,
+                    totalPrice: quantity * productPrice
+                });
+            } else {
+                // If product is in the cart, update the quantity and total price
+                userCart.products[productIndex].quantity += quantity;
+                userCart.products[productIndex].totalPrice += quantity * productPrice;
+            }
+
+            await userCart.save();
         }
-         res.json({ message: 'Product added to cart successfully' });
+
+        res.json({ message: 'Product added to cart successfully' });
     } catch (err) {
-        console.log(err);
+        console.error(err);
+        res.json({ error: 'Internal server error' });
     }
 };
+
 
 const removeFromCart = async (req, res) => {
     try {
@@ -93,10 +144,25 @@ const updateCart = async (req, res) => {
         const userCart = await Cart.findOne({ userid: req.session.user });
 
         const cartProduct = userCart.products.find(p => p.productId.equals(productId));
-        const findProduct = await Product.findById(productId);
+        const productToCart = await Product.findById(productId).populate({
+            path: 'Category',
+            populate: { path: 'offer' }
+        }).populate('offer');
+
+
+
+        let productPrice;
+        if (productToCart.offer) {
+            productPrice = Math.floor(productToCart.Price - (productToCart.Price * productToCart.offer.percentage / 100));
+        } else if (productToCart.Category.offer) {
+            productPrice = Math.floor(productToCart.Price - (productToCart.Price * productToCart.Category.offer.percentage / 100));
+        } else {
+            productPrice = productToCart.Price;
+        }
+
         cartProduct.quantity = newQuantity;
-        cartProduct.totalPrice = newQuantity * findProduct.DiscountPrice;
-        const productprice=newQuantity * findProduct.DiscountPrice;
+        cartProduct.totalPrice = newQuantity * productPrice;
+        const productprice=newQuantity * productPrice;
         await userCart.save();
         const totalPrice = userCart.products.reduce((total, product) => {
             return total + product.totalPrice;
@@ -134,7 +200,7 @@ const checkout = async (req,res)=>{
 const addressSubmit = async(req,res)=>{
     try{
         const {name,phone,email,address,pincode,state,city} = req.body
-        
+        console.log(req.body)
         const userid = req.session.user
         const user = await User.findById(userid)
         

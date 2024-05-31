@@ -156,15 +156,18 @@
                                 <%order.products.forEach((product)=>{%>
                                 <div class="card-body">
                                     <div class="media">
-                                        <div class="sq align-self-center "> <img class="img-fluid  my-auto align-self-center mr-2 mr-md-4 pl-0 p-0 m-0" src="/uploads/<%=product.products.Images[0]%>" width="135" height="135" /> </div>
+                                        <div class="sq align-self-center "> 
+                                            <a href="/product/<%=product.products._id%>">
+                                                <img class="img-fluid  my-auto align-self-center mr-2 mr-md-4 pl-0 p-0 m-0" src="/uploads/<%=product.products.Images[0]%>" width="135" height="135"/>
+                                            </a>
+                                        </div>
                                         <div class="media-body my-auto text-right">
                                             <div class="row  my-auto flex-column flex-md-row">
                                                 <div class="col my-auto"> <h6 class="mb-0"><%=product.products.Name%></h6>  </div>
                                                 <div class="col-auto my-auto"><%=product.products.Category.Name%></div>
-                                                <div class="col my-auto"><%=product.products.DiscountPrice%></div>
+                                                <div class="col my-auto"><%=product.products.Price%></div>
                                                 <div class="col my-auto">Qty : <%=product.quantity%></div>
-                                                <div class="col my-auto"><h6 class="mb-0">&#8377;<%=product.total%></h6>
-                                                </div>
+                                                <div class="col my-auto"><h6 class="mb-0">&#8377;<%=product.total%></h6></div>
                                                 <div><h6>Order status : <span class="text-danger"><%=product.Status%></span></h6></div>
                                                 <div class=""></div>
                                             </div>
@@ -201,8 +204,9 @@
                                 <div class="flex-sm-col text-right col"> <p class="mb-1"><b>Total  :</b></p> </div>
                                 <div class="flex-sm-col col-auto"> <p class="mb-1">&#8377;<%=order.total%></p> </div>
                             </div>
-                            
-                           
+
+                            <a href="/downloadInvoice/<%=order._id%>" class="btn btn-primary btn-round" download="invoice.pdf">Download Invoice</a>                     
+                                  
                             <div class="row justify-content-between">
                                 <div class="flex-sm-col text-right col"><p class="mb-1"><b>Delivery Charges</b></p></div>
                                 <div class="flex-sm-col col-auto"><p class="mb-1">Free</p></div>
@@ -217,8 +221,8 @@
                             <div class="col-auto my-auto "><h2 class="mb-0 font-weight-bold">TOTAL PAID</h2></div>
                             <div class="col-auto my-auto ml-auto"><h1 class="display-3 ">&#8377; <%=order.total%></h1></div>
                         </div>
-                        
                     </div>
+
                 </div>
             </div>
         </div>

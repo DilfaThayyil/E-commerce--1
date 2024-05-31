@@ -19,6 +19,7 @@ const storage = multer.diskStorage({
     }
   });
   
+
   const upload = multer({ storage: storage });
   adminRouter.post('/addImage', upload.single('image'), async (req, res) => {
     try {
@@ -45,32 +46,65 @@ const storage = multer.diskStorage({
   
 
 
-
 adminRouter.get('/',adminController.dashboard)
 adminRouter.get('/login',adminMiddleware.isLoged,adminController.login)
 adminRouter.post('/loginsubmit',adminController.loginSubmit)
+
+
 adminRouter.get('/allproducts',adminController.allProducts)
-adminRouter.get('/allusers',adminController.allUsers)
-adminRouter.get('/category',adminController.category)
-adminRouter.get('/allorders',adminController.allOrders)
 adminRouter.get('/addproducts',adminController.addProducts)
 adminRouter.post('/addProductsSubmit',adminController.addProductsSubmit)
-adminRouter.get('/addcategory',adminController.addCategory)
-adminRouter.post('/addCategorySubmit',adminController.addCategorySubmit)
-adminRouter.get('/blockuser/:id',adminController.blockUser)
-adminRouter.get('/unblockuser/:id',adminController.unBlockUser)
 adminRouter.get('/blockproduct/:id',adminController.blockProduct)
 adminRouter.get('/unblockproduct/:id',adminController.unBlockProduct)
-adminRouter.post('/blockcategory/',adminController.blockCategory)
-adminRouter.get('/editcategory/:id',adminController.editCategory)
-adminRouter.post('/editcategorysubmit/:id',adminController.editCategorySubmit)
 adminRouter.get('/editproduct/:id',adminController.editProduct)
 adminRouter.post('/editProductSubmit/:id',adminController.editProductSubmit)
 adminRouter.post('/deleteimage/:imgid/:index/:proid',adminController.imagedelete)
+
+
+adminRouter.get('/allusers',adminController.allUsers)
+adminRouter.get('/blockuser/:id',adminController.blockUser)
+adminRouter.get('/unblockuser/:id',adminController.unBlockUser)
+
+
+adminRouter.get('/category',adminController.category)
+adminRouter.get('/addcategory',adminController.addCategory)
+adminRouter.post('/addCategorySubmit',adminController.addCategorySubmit)
+adminRouter.post('/blockcategory/',adminController.blockCategory)
+adminRouter.get('/editcategory/:id',adminController.editCategory)
+adminRouter.post('/editcategorysubmit/:id',adminController.editCategorySubmit)
+adminRouter.delete('/deleteCategory/:id',adminController.deleteCategory)
+
+
+adminRouter.get('/allorders',adminController.allOrders)
 adminRouter.post('/cancelOrder/:orderId',adminController.cancelOrder);
 adminRouter.post('/updateStatus',adminController.updateStatus)
 adminRouter.get('/orderDetails/:orderId/:productId',adminController.orderDetails)
 adminRouter.post('/approveReturnRequest/:orderId/:productId',adminController.approveReturnRequest)
+
+
+adminRouter.get('/coupon',adminController.coupon)
+adminRouter.get('/addCoupons',adminController.addCoupons)
+adminRouter.post('/addCouponSubmit',adminController.addCouponSubmit)
+adminRouter.post('/blockCoupon',adminController.blockCoupon)
+adminRouter.get('/editCoupon/:id',adminController.editCoupon)
+adminRouter.post('/editCouponSubmit/:id',adminController.editCouponSubmit)
+adminRouter.delete('/deleteCoupon/:id',adminController.deleteCoupon)
+
+
+adminRouter.get('/salesReport',adminController.salesReport)
+adminRouter.post('/salesReportGenerate',adminController.salesReportGenerate)
+
+
+adminRouter.get('/offer',adminController.allOffers)
+adminRouter.get('/addOffer',adminController.addOffer)
+adminRouter.post('/addOfferSubmit',adminController.addOfferSubmit)
+adminRouter.get('/editOffer/:id',adminController.editOffer)
+adminRouter.post('/editOfferSubmit/:id',adminController.editOfferSubmit)
+adminRouter.post('/applyOffer',adminController.applyOffer)
+adminRouter.post('/removeOffer',adminController.removeOffer)
+adminRouter.post('/applyOfferCategory',adminController.applyOfferCategory)
+adminRouter.post('/removeOfferCategory',adminController.removeOfferCategory)
+
 
 
 

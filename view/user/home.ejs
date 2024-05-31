@@ -16,19 +16,14 @@
                                     <a href="/allproducts">Shop</a>
                                 </li>
                                 <li >
-                                    <a href="/">Contact</a>
+                                    <a href="/contact">Contact</a>
                                 </li>
                                 <li >
-                                    <a href="/">About Us</a>
+                                    <a href="/aboutUs">About Us</a>
                                 </li>
-                                <!-- <li >
-                                    <a href="/">My Account</a>
-                                </li> -->
-                                <!-- <li hidden>
-                                    <a href="elements-list.html">Elements</a>
-                                </li> -->
-        
-                                <li hidden><a href="#">Buy product</a></li>
+                                <li >
+                                    <a href="/userProfile">My Account</a>
+                                </li>                                
                             </ul><!-- End .menu -->
                         </nav><!-- End .main-nav -->
         
@@ -57,7 +52,7 @@
                             </form>
                         </div><!-- End .header-search -->
                         
-                        <a href="wishlist.html" class="wishlist-link" hidden>
+                        <a href="/wishlist" class="wishlist-link" >
                             <i class="icon-heart-o"></i>
                             <span class="wishlist-count">0</span>
                         </a>
@@ -196,14 +191,19 @@
                                 <div class="col-6 col-md-4">
                                     <div class="product product-4" >
                                         <figure class="product-media">
+                                            <%if(product.offer){%>
+                                                <span class="product-label label-new"><%=product.offer.percentage%>% offer</span>
+                                            <%}else if(product.Category.offer){%>
+                                                <span class="product-label label-new"><%=product.Category.offer.percentage%>% offer</span>
+                                            <%}%>
                                             <a href="/product/<%=product._id%>">
                                                 <img src="/uploads/<%=product.Images[0]%>" alt="Product image" class="product-image">
                                                 <img src="/uploads/<%=product.Images[1]%>" alt="Product image" class="product-image-hover">
                                             </a>
 
-                                            <div class="product-action-vertical" hidden>
-                                                <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
-                                                <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a>
+                                            <div class="product-action-vertical" >
+                                                <a onclick="addToWishlist('<%=product._id%>')" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
+                                                <!-- <a href="popup/quickView.html" class="btn-product-icon btn-quickview" title="Quick view"><span>Quick view</span></a> -->
                                             </div><!-- End .product-action -->
 
                                             <div class="product-action">
@@ -221,7 +221,23 @@
                                             </div><!-- End .product-cat -->
                                             <h3 class="product-title"><a href="/product/<%=product._id%>"><%=product.Name%></a></h3><!-- End .product-title -->
                                             <div class="product-price">
-                                                <%=product.Price%>
+                                                <s style="font-size: small;"> ₹<%= product.Price %></s>&nbsp; &nbsp;
+                                            
+                                                <% 
+                                                    const productPrice = parseFloat(product.Price) || 0;
+                                                    const productOffer = product.offer ? parseFloat(product.offer.percentage) || 0 : 0;
+                                                    const categoryOffer = product.Category && product.Category.offer ? parseFloat(product.Category.offer.percentage) || 0 : 0;
+                                            
+                                                    let finalPrice = productPrice;
+                                            
+                                                    if (product.offer) {
+                                                        finalPrice = Math.floor(productPrice - (productPrice * productOffer / 100));
+                                                    } else if (product.Category && product.Category.offer) {
+                                                        finalPrice = Math.floor(productPrice - (productPrice * categoryOffer / 100));
+                                                    }
+                                                %>
+                                            
+                                                ₹<%= finalPrice %>
                                             </div><!-- End .product-price -->
                                             <div class="product-nav product-nav-dots">
                                                 
@@ -480,7 +496,6 @@
     const addToCart = async (productId,quantity) => {
         try {
             const quantity = 1
-            console.log(quantity);
             const response = await fetch(`/addtocart/${productId}/${quantity}`, {
                 method: 'POST',
                 headers: {
@@ -513,6 +528,37 @@
     };
     
     
-    
+    const addToWishlist = async (productId) => {
+        try {
+            const response = await fetch(`/addtowishlist/${productId}`, {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json' 
+            },
+            
+            });
+            const data = await response.json();
+            if (data.error) {
+                swal({
+                title: "Error!",
+                text: data.error,
+                icon: "error",
+                button: "OK",
+            });
+            } else if (data.message) {
+            swal({
+                title: "Success!",
+                text: data.message,
+                icon: "success",
+                button: "OK",
+            }).then((value) => {
+                window.location.reload(); 
+            });
+                
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
 
 </script>

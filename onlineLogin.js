@@ -13,6 +13,10 @@ require('dotenv').config()
 // login with google
 
     app.get('/auth/google',(req,res)=>{
+      const Referral = req.query.referralCode
+      if(Referral){
+        req.session.Referral=Referral
+       }
     const url = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${REDIRECT_URI}&response_type=code&scope=profile email`
     res.redirect(url)
   })
@@ -42,14 +46,32 @@ require('dotenv').config()
         res.redirect('/')
       }else{
         const bcryptPassword=  await bcrypt.hash(profile.id,10)
+        let name=profile.name.split(' ')[0]
+        console.log(name)
         const newUser= new User({
             Name:profile.name,
             Email:profile.email,
-            password:bcryptPassword
+            password:bcryptPassword,
+            ReferId:name+Math.floor(Math.random() * (99999 - 10000 + 1)) + 10000
 
 
         })
-      
+          let ref=req.session.Referral
+        if( ref){
+          const user=await User.findOne({ReferId:ref})
+          user.wallet+=250
+          newUser.wallet+=250
+          const transaction = {
+             amount : 250,
+             description: 'By Referred',
+             date : new Date(),
+             status : 'in'
+           }
+           user.walletHistory.push(transaction)
+           newUser.walletHistory.push(transaction)
+           await user.save()
+           req.session.Referral=null
+        }
 
 
        let user= await newUser.save()

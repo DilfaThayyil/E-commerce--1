@@ -10,70 +10,8 @@
 
     <div class="container-scroller">
       <!-- partial:partials/_sidebar.html -->
-      <nav class="sidebar sidebar-offcanvas" id="sidebar">
-        <div class="sidebar-brand-wrapper d-none d-lg-flex align-items-center justify-content-center fixed-top">
-          <a class="sidebar-brand brand-logo" href="index.html"><img src="/admin/assets/images/logo.svg" alt="logo" /></a>
-          <a class="sidebar-brand brand-logo-mini" href="index.html"><img src="/admin/assets/images/logo-mini.svg" alt="logo" /></a>
-        </div>
-        <ul class="nav">
-          <li class="nav-item profile">
-            <div class="profile-desc">
-              <div class="profile-pic">
-                <div class="count-indicator">
-                  <img class="img-xs rounded-circle " src="/admin/assets/images/faces/face15.jpg" alt="">
-                  <span class="count bg-success"></span>
-                </div>
-                <div class="profile-name">
-                  <h5 class="mb-0 font-weight-normal">Admin</h5>
-                  
-                </div>
-              </div>
-            </div>
-          </li>
-          
-          <li class="nav-item menu-items">
-            <a class="nav-link" href="/admin">
-              <span class="menu-icon">
-                <i class="mdi mdi-speedometer"></i>
-              </span>
-              <span class="menu-title">Dashboard</span>
-            </a>
-          </li>
-          <li class="nav-item menu-items">
-            <a class="nav-link" href="/admin/allusers" >
-              <span class="menu-icon">
-                <i class="mdi mdi-laptop"></i>
-              </span>
-              <span class="menu-title">All users</span>
-              
-            </a>
-          </li>
-          <li class="nav-item menu-items">
-            <a class="nav-link" href="/admin/allproducts">
-              <span class="menu-icon">
-                <i class="mdi mdi-playlist-play"></i>
-              </span>
-              <span class="menu-title">All Products</span>
-            </a>
-          </li>
-          <li class="nav-item menu-items">
-            <a class="nav-link" href="/admin/category">
-              <span class="menu-icon">
-                <i class="mdi mdi-table-large"></i>
-              </span>
-              <span class="menu-title">Category</span>
-            </a>
-          </li>
-          <li class="nav-item menu-items">
-            <a class="nav-link" href="/admin/allorders">
-              <span class="menu-icon">
-                <i class="mdi mdi-chart-bar"></i>
-              </span>
-              <span class="menu-title">All orders</span>
-            </a>
-          </li>
-        </ul>
-      </nav>
+      <%-include('../partials/adminNavbar')%>
+
       <!-- partial -->
       <div class="container-fluid page-body-wrapper">
         <!-- partial:partials/_navbar.html -->
@@ -94,6 +32,8 @@
                           <th>No.</th>
                           <th>Name</th>
                           <th>Description</th>
+                          <th>Offer</th>
+                          <th>Edit</th>
                           <th>Status</th>
                           <th>Action</th>
                         </tr>
@@ -104,13 +44,72 @@
                             <td><%=index+1%></td>
                             <td><%=category.Name%></td>
                             <td><%=category.Description%></td>
-                            <td><%=category.Status%></td>
-                            <td><a class="btn btn-primary mr-2" href="/admin/editcategory/<%=category._id%>">Edit</a></td>
+                            <td>
+                              <% if(category.offer){%>
+                                <p id="offer"><%=category.offer.name%></p>
+                                <a href="#" class="btn btn-danger" id="remove" onclick="removeOffer('<%=category.offer._id%>','<%=category._id%>')">
+                                  remove
+                                </a>
+                              <%}else{%>
+                                <a href="" class="btn btn-success" data-toggle="modal" data-target="#offerModal<%=category._id%>">
+                                  Apply
+                                </a>
+                              <%}%>
+
+                              <div class="modal fade" id="offerModal<%=category._id%>" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog">
+                                  <div class="modal-content">
+                                    <div class="modal-header">
+                                      <h5 class="modal-title" id="exampleModalLabel" style="color: white;">Select Offer</h5>
+        
+                                      <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                      <hr>
+                                      <h3 style="color: whitesmoke;">Available Offers</h3>
+                                      <% offers.forEach((offer)=>{%>
+                                      <div class="row">
+                                        <div class="col-sm-6">
+                                          <div class="card">
+                                            <div class="card-body">
+                                              <h5 class="card-title">Name:<%=offer.name%></h5>
+                                              <p class="card-text">Offer percentage:<%=offer.percentage%>%</p>
+                                              <p class="card-text">StartingDate: <br> <%=offer.startDate.toLocaleDateString('en-US')%></p>
+                                              <p class="card-text">ExpiryDate:  <br> <%=offer.endDate.toLocaleDateString('en-US')%></p>
+                                              <button id="offerapply_<%=offer._id%>" onclick="applyOffer('<%=offer._id%>', '<%=category._id%>', 'offerapply_<%=offer._id%>')" class="btn btn-primary">Apply Offer</button>
+                                              <br>
+                                              <a href="#" style="display: none;" class="text-success" id="mesgoffer">Offer added</a>
+                                            </div>
+                                          </div>
+                                        </div>
+                                      </div>
+                                            
+                                      <%})%>
+                                    </div>
+                                    <div class="modal-footer">
+                                      <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                      <button type="button" class="btn btn-primary">Save changes</button>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </td>
+                            
+                            <td><a class="btn btn-primary mr-2" href="/admin/editcategory/<%=category._id%>"><i class="mdi mdi-pencil"></i> Edit</a></td>
+
+                            <%if(category.Status == 'active'){%>
+                              <td><i class="text-success"><%=category.Status%></i></td>
+                            <%}else{%>
+                              <td><i class="text-danger"><%=category.Status%></i></td>
+                            <%}%>
                             <%if(category.Status=='active'){%>
-                            <td><a class="btn btn-danger" onclick="confirmBlock('<%= category._id %>')">block</button></td>
+                            <td><a class="btn btn-danger" onclick="confirmBlock('<%= category._id %>')"><i class="mdi mdi-close-outline"></i> block </button></td>
                             <%}else{%>
                             <td><a class="btn btn-success" onclick="unblock('<%=category._id%>')">unblock</button></td>
                             <%}%>
+                            <td>
+                              <a onclick="deleteCategory('<%=category._id%>')"><i class="mdi mdi-delete" style="font-size: 20px; color: red;"></i></a>
+                            </td>
                           </tr>
                         <%})%>
                       </tbody>
@@ -196,6 +195,77 @@
         }
       });
     }
+
+
+    function applyOffer(offerId,categoryId){
+      fetch('/admin/applyOfferCategory',{
+            method:"POST",
+            headers:{
+              'Content-Type': 'application/json',
+            },
+            body:JSON.stringify({offerId,categoryId})
+          }).then(response => response.json())
+                .then(data => {
+                  if(data.success){
+
+                    window.location.reload()
+
+                  }
+                }).catch(error => console.error('Error:', error));
+    }
+
+    function removeOffer(offerId,categoryId){
+            fetch('/admin/removeOfferCategory',{
+              method:"POST",
+              headers:{
+                'Content-Type':'application/json'
+              },
+              body:JSON.stringify({offerId,categoryId})
+            }).then(response=>response.json())
+              .then((data)=>{
+                if(data.success){
+
+                  window.location.reload()
+                }
+            })
+          }
+
+
+    function deleteCategory(categoryId){
+      Swal.fire({
+        title: 'Are you sure?',
+        text: 'You won\'t be able to revert this!',
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Yes, delete it!'
+      }).then((result) => {
+        if (result.isConfirmed) {
+          fetch(`/admin/deleteCategory/${categoryId}`, {
+            method: 'DELETE', 
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          })
+          .then(response => {
+            if (!response.ok) {
+              throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
+
+          })
+          .then(data => {
+            window.location.reload()
+          })
+          .catch(error => {
+            console.error('Error:', error);
+          });
+        }
+      });
+    }
+
+
   </script>
   
   

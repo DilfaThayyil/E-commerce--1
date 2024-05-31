@@ -61,13 +61,15 @@
                             <div class="col-6 col-md-4 col-lg-4 col-xl-3">
                                 <div class="product" >
                                     <figure class="product-media">
-                                        <span class="product-label label-new">New</span>
+                                        <%if(product.offer){%>
+                                            <span class="product-label label-new"><%=product.offer.percentage%>% offer</span>
+                                        <%}%>
                                         <a href="/product/<%=product._id%>">
                                             <img src="/uploads/<%=product.Images[0]%>" alt="Product image" class="product-image">
                                         </a>
 
                                         <div class="product-action-vertical">
-                                            <a href="#" class="btn-product-icon btn-wishlist btn-expandable"><span>add to wishlist</span></a>
+                                            <a onclick="addToWishlist('<%=product._id%>')" class="btn-product-icon btn-wishlist btn-expandable" ><span>add to wishlist</span></a>
                                         </div><!-- End .product-action -->
 
                                         <div class="product-action action-icon-top">
@@ -88,8 +90,25 @@
                                         </div><!-- End .product-cat -->
                                         <h3 class="product-title"><a href="/product/<%=product._id%>"><%=product.Name%></a></h3><!-- End .product-title -->
                                         <div class="product-price">
-                                            <%=product.Price%>
+                                            <s style="font-size: small;"> ₹<%= product.Price %></s>&nbsp; &nbsp;
+                                        
+                                            <% 
+                                                const productPrice = parseFloat(product.Price) || 0;
+                                                const productOffer = product.offer ? parseFloat(product.offer.percentage) || 0 : 0;
+                                                const categoryOffer = product.Category && product.Category.offer ? parseFloat(product.Category.offer.percentage) || 0 : 0;
+                                        
+                                                let finalPrice = productPrice;
+                                        
+                                                if (product.offer) {
+                                                    finalPrice = Math.floor(productPrice - (productPrice * productOffer / 100));
+                                                } else if (product.Category && product.Category.offer) {
+                                                    finalPrice = Math.floor(productPrice - (productPrice * categoryOffer / 100));
+                                                }
+                                            %>
+                                        
+                                            ₹<%= finalPrice %>
                                         </div><!-- End .product-price -->
+                                        
                                         <div class="ratings-container">
                                             <div class="ratings">
                                                 <div class="ratings-val" style="width: 80%;"></div><!-- End .ratings-val -->
@@ -316,6 +335,40 @@ selectElement.addEventListener('change', () => {
 });
 
 
+
+
+    const addToWishlist = async (productId) => {
+        try {
+            const response = await fetch(`/addtowishlist/${productId}`, {
+                method: 'POST',
+                headers: {
+                'Content-Type': 'application/json' 
+            },
+            
+            });
+            const data = await response.json();
+            if (data.error) {
+                swal({
+                title: "Error!",
+                text: data.error,
+                icon: "error",
+                button: "OK",
+            });
+            } else if (data.message) {
+            swal({
+                title: "Success!",
+                text: data.message,
+                icon: "success",
+                button: "OK",
+            }).then((value) => {
+                window.location.reload(); 
+            });
+                
+            }
+        } catch (error) {
+            console.error('Error:', error);
+        }
+    };
 
 
 

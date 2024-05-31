@@ -33,8 +33,8 @@
 								    <li class="nav-item">
 								        <a class="nav-link" id="tab-orders-link" data-toggle="tab" href="#tab-orders" role="tab" aria-controls="tab-orders" aria-selected="false">Orders</a>
 								    </li>
-								    <li class="nav-item" hidden>
-								        <a class="nav-link" id="tab-downloads-link" data-toggle="tab" href="#tab-downloads" role="tab" aria-controls="tab-downloads" aria-selected="false">Downloads</a>
+								    <li class="nav-item" >
+								        <a class="nav-link" id="tab-coupons-link" data-toggle="tab" href="#tab-coupons" role="tab" aria-controls="tab-coupons" aria-selected="false">Coupons</a>
 								    </li>
 								    <li class="nav-item">
 								        <a class="nav-link" id="tab-address-link" data-toggle="tab" href="#tab-address" role="tab" aria-controls="tab-address" aria-selected="false">Adresses</a>
@@ -51,56 +51,124 @@
 	                		<div class="col-md-8 col-lg-9">
 	                			<div class="tab-content">
 								    <div class="tab-pane fade show active" id="tab-dashboard" role="tabpanel" aria-labelledby="tab-dashboard-link">
-								    	<div class="col-md-8 col-lg-9">
+                                        <div class="col-md-8 col-lg-12">
                                             <div class="tab-content">
                                                 <div class="row">
                                                     <div class="col-lg-6">
                                                         <div class="card card-dashboard">
                                                             <div class="card-body">
                                                                 <h3 class="card-title">My Profile</h3><!-- End .card-title -->
-            
-                                                                <br><p><strong>Name : </strong><br><%=user.Name%></p>
-                                                                <p><strong>Email : </strong><br><%=user.Email%></p>
-                                                                <%if(user.PhoneNumber){%>
-                                                                    <p><strong>Phone : </strong><br><%=user.PhoneNumber%></p>
-                                                                <%}%>
-																<button class="edit-button" data-toggle="modal" data-target="#editModal">
-																	<i class="icon-edit"></i> Edit
-																</button>
+                                                                <br>
+                                                                <p><strong>Name : </strong><br><%= user.Name %></p>
+                                                                <p><strong>Email : </strong><br><%= user.Email %></p>
+                                                                <% if(user.PhoneNumber) { %>
+                                                                <p><strong>Phone : </strong><br><%= user.PhoneNumber %></p>
+                                                                <% } %>
+                                                                <button class="edit-button" data-toggle="modal" data-target="#editModal">
+                                                                    <i class="icon-edit"></i> Edit
+                                                                </button>
 
-																<div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
-																	<div class="modal-dialog" role="document">
-																	<div class="modal-content">
-																		<div class="modal-header">
-																			<h5 class="modal-title" id="editModalLabel">Edit User Details</h5>
-																			<button type="button" class="close" data-dismiss="modal" aria-label="Close">
-																				<span aria-hidden="true">&times;</span>
-																			</button>
-																		</div>
-																	<div class="modal-body">
-																		<form action="/editProfile" method="post" id="editProfileForm">
-																			<div class="form-group">
-																				<label for="editName">Name</label>
-																				<input type="text" class="form-control" id="editName" value="<%=user.Name%>" name="name" required>
-																			</div>
-																			
-																			<div class="form-group">
-																				<label for="editPhone">Phone</label>
-																				<input type="text" class="form-control" id="editPhone" value="<%=user.PhoneNumber || ''%>" name="phone" required>
-																			</div>
-																			<button type="button" class="btn btn-primary" onclick="submitForm()">Save Changes</button>
-																		</form>
-																	</div>
-																</div>
-															</div>
-															</div>
+                                                                
+                                    
+                                                                <div class="modal fade" id="editModal" tabindex="-1" role="dialog" aria-labelledby="editModalLabel" aria-hidden="true">
+                                                                    <div class="modal-dialog" role="document">
+                                                                        <div class="modal-content">
+                                                                            <div class="modal-header">
+                                                                                <h5 class="modal-title" id="editModalLabel">Edit User Details</h5>
+                                                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                                                    <span aria-hidden="true">&times;</span>
+                                                                                </button>
+                                                                            </div>
+                                                                            <div class="modal-body">
+                                                                                <form action="/editProfile" method="post" id="editProfileForm">
+                                                                                    <div class="form-group">
+                                                                                        <label for="editName">Name</label>
+                                                                                        <input type="text" class="form-control" id="editName" value="<%= user.Name %>" name="name" required>
+                                                                                    </div>
+                                                                                    <div class="form-group">
+                                                                                        <label for="editPhone">Phone</label>
+                                                                                        <input type="text" class="form-control" id="editPhone" value="<%= user.PhoneNumber || '' %>" name="phone" required>
+                                                                                    </div>
+                                                                                    <button type="button" class="btn btn-primary" onclick="submitForm()">Save Changes</button>
+                                                                                </form>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
                                                             </div><!-- End .card-body -->
                                                         </div><!-- End .card-dashboard -->
                                                     </div><!-- End .col-lg-6 -->
+                                    
+                                                    <div class="col-lg-6">
+                                                        <div class="card card-dashboard">
+                                                            <div class="card-body">
+                                                                <h3 class="card-title text-center">My Wallet </h3><!-- End .card-title -->
+                                                                <br>
+                                                                <h5>Total Balance: &nbsp; ₹ &nbsp; <%= user.wallet %></h5><br>
+                                                                <button type="button" class="btn btn-primary btn-block btn-lg" data-toggle="modal" data-target="#myModal">
+                                                                    View Transactions
+                                                                </button>
+                                                            </div><!-- End .card-body -->
+                                                        </div><!-- End .card-dashboard -->
+                                                    </div><!-- End .col-lg-6 -->
+                                                </div><!-- End .row -->
+                                                                <h6>Your Referral Link</h6>
+                                                                <input type="text" class="form-control" id="referralLink" value="http://localhost:3000/register?referralCode=<%=user.ReferId%>" readonly>
+
+                                                                <a class="btn btn-primary" href="" onclick="copyReferralLink()">Copy Link</a>
+                                                                <span id="copyStatus"></span>
+                                    
+                                                <div class="modal" id="myModal">
+                                                    <div class="modal-dialog">
+                                                        <div class="modal-content">
+                                                            <!-- Modal Header -->
+                                                            <div class="modal-header">
+                                                                <h4 class="modal-title">Wallet Transactions</h4>
+                                                                <button type="button" class="close" data-dismiss="modal">&times;</button>
+                                                            </div>
+                                                            <!-- Modal body -->
+                                                            <div class="modal-body p-3">
+                                                                <table class="table table-striped">
+                                                                    <div class="container">
+                                                                        <thead>
+                                                                            <tr>
+                                                                                <th>Date</th>
+                                                                                <th>Amount</th>
+                                                                                <th>Description</th>
+                                                                                <th>Status</th>
+                                                                            </tr>
+                                                                        </thead>
+                                                                        <tbody>
+                                                                            <% user.walletHistory.sort((a, b) => new Date(b.date) - new Date(a.date)).forEach(wallet => { %>
+                                                                            <tr>
+                                                                                <td><%= wallet.date.toLocaleDateString() %></td>
+                                                                                <td><%= wallet.amount %></td>
+                                                                                <td><%= wallet.description %></td>
+                                                                                <td>
+                                                                                    <% if (wallet.status === "in") { %>
+                                                                                    <i class="fa-solid fa-arrow-left" style="color: #087f06;"></i>
+                                                                                    <% } else if (wallet.status === "out") { %>
+                                                                                    <i class="fa-solid fa-arrow-left fa-rotate-180" style="color: #a21606;"></i>
+                                                                                    <% } %>
+                                                                                </td>
+                                                                            </tr>
+                                                                            <% }) %>
+                                                                        </tbody>
+                                                                    </div>
+                                                                </table>
+                                                            </div>
+                                                            <!-- Modal footer -->
+                                                            <div class="modal-footer">
+                                                                <button type="button" class="btn btn-danger" data-dismiss="modal">Close</button>
+                                                            </div>
+                                                        </div>
+                                                    </div>
                                                 </div>
-                                            </div>
-                                        </div>
-								    </div><!-- .End .tab-pane -->
+                                            </div><!-- End .tab-content -->
+                                        </div><!-- End .col-md-8 col-lg-12 -->
+                                    </div><!-- .End .tab-pane -->
+                                    
+
 									<div class="tab-pane fade mb-5" id="tab-orders" role="tabpanel" aria-labelledby="tab-orders-link">
 										<section class="vh-100 gradient-custom-2 mt-5 orders-section">
 											<div class="container py-5 mt-5">
@@ -121,7 +189,7 @@
 																						<h4 class="mb-3 product-price" > ₹ <%= product.total %> <span class="small text-muted"> </span></h4>
 																					</div>
 																					<div>
-																						<img class="align-self-center img-fluid" src="/uploads/<%=product.products.Images[0]%>" width="50">
+																						<a href="/singleproduct/<%=product._id%>"><img class="align-self-center img-fluid" src="/uploads/<%=product.products.Images[0]%>" width="50"></a>
 																					</div>
 																				</div>
 																			<% }); %>
@@ -144,9 +212,26 @@
 									
 									
 
-								    <div class="tab-pane fade" id="tab-downloads" role="tabpanel" aria-labelledby="tab-downloads-link">
-								    	<p>No downloads available yet.</p>
-								    	<a href="category.html" class="btn btn-outline-primary-2"><span>GO SHOP</span><i class="icon-long-arrow-right"></i></a>
+								    <div class="tab-pane fade" id="tab-coupons" role="tabpanel" aria-labelledby="tab-coupons-link">
+								    	<%if(coupon){%>
+                                            <%coupon.forEach(coupon=>{%>
+                
+                                        <div class="card mt-5 mx-3" style="width: 87%;">
+                                            <div class="card-body">
+                                              <span class="card-title mt-1">CouponName: &nbsp; <%=coupon.name%></span>
+                                              <p class="card-text">couponCode: &nbsp; <%=coupon.code%></p>
+                                              <p class="card-text">discountamount:  &nbsp; <%=coupon.discountAmount%></p>
+                                              <p class="card-text">minAmount: &nbsp;<%=coupon.minAmount%></p>
+                                              <p class="card-text">couponDescription: &nbsp; <%=coupon.description%></p>
+                                              <p class="card-text">expiryDate: &nbsp; <%=coupon.expiryDate.toLocaleDateString('en-US',{year:'numeric',month: 'short',day: '2-digit'}).replace(/\//g, '-')%></p>
+                                            </div>
+                                          </div>
+                
+                                          <%})%>
+                                          <%}else{%>
+                                            <h3><p>No coupons available yet.</p></h3>                                        
+								    	    <a href="/" class="btn btn-outline-primary-2"><span>GO SHOP</span><i class="icon-long-arrow-right"></i></a>
+                                          <%}%>
 								    </div><!-- .End .tab-pane -->
 
 
@@ -173,7 +258,7 @@
 														<p><strong>City : </strong><%=Address.city%></p>
 														
 
-														<div class="mt-5">
+														<div class="">
 															<button class=" edit-button" data-toggle="modal" data-target="#editAddressModal<%=Address._id%>">
 																<i class="icon-edit"></i> Edit </button>
 															<a href="#" class="delete-button" onclick="removeAddress('<%=Address._id%>')">
@@ -257,39 +342,46 @@
 													</div>
 													<div class="modal-body mx-3">
 													  <div class="md-form mb-5">
-														<input type="text" id="name" class="form-control validate" name="name">
 														<label data-error="wrong" data-success="right" for="formname">Name</label>
+														<input type="text" id="formname" class="form-control validate" name="name">
+														<span id="nameError" class="text-danger"></span>
 													  </div>
-					
+						
 													  <div class="md-form mb-5">
-														<input type="text" id="phone" class="form-control validate" name="phone">
 														<label data-error="wrong" data-success="right" for="formphone">Phone</label>
+														<input type="text" id="formphone" class="form-control validate" name="phone">
+														<span id="phoneError" class="text-danger"></span>
 													  </div>
-					
+						
 													  <div class="md-form mb-5">
-														<input type="text" id="email" class="form-control validate" name="email">
 														<label data-error="wrong" data-success="right" for="formemail">Email</label>
+														<input type="text" id="formemail" class="form-control validate" name="email">
+														<span id="emailError" class="text-danger"></span>
 													  </div>
-					
+						
 													  <div class="md-form mb-5">
-														<input type="text" id="address" class="form-control validate" name="address">
 														<label data-error="wrong" data-success="right" for="formaddress">Address</label>
+														<input type="text" id="formaddress" class="form-control validate" name="address">
+														<span id="addressError" class="text-danger"></span>
 													  </div>
 													  <div class="md-form mb-5">
-														<input type="text" id="pincode" class="form-control validate" name="pincode">
 														<label data-error="wrong" data-success="right" for="formpincode">Pincode</label>
+														<input type="text" id="formpincode" class="form-control validate" name="pincode">
+														<span id="pincodeError" class="text-danger"></span>
 													  </div>
-					
+						
 													  <div class="md-form mb-5">
-														<input type="text" id="state" class="form-control validate" name="state">
 														<label data-error="wrong" data-success="right" for="formstate">State</label>
+														<input type="text" id="formstate" class="form-control validate" name="state">
+														<span id="stateError" class="text-danger"></span>
 													  </div>
-					
+						
 													  <div class="md-form mb-5">
-														<input type="text" id="city" class="form-control validate" name="city">
 														<label data-error="wrong" data-success="right" for="formcity">City</label>
+														<input type="text" id="formcity" class="form-control validate" name="city">
+														<span id="cityError" class="text-danger"></span>
 													  </div>
-					
+						
 													</div>
 													<div class="modal-footer d-flex justify-content-center">
 													  <button type="submit" class="btn btn-primary">Submit</button>
@@ -304,7 +396,7 @@
 
 								    
 									<div class="tab-pane fade" id="tab-changePassword" role="tabpanel" aria-labelledby="tab-changePassword-link">
-										<form id="changePasswordForm">
+										<form id="changePasswordForm" >
 											
 											<label>Current password</label>
 											<input type="password" class="form-control" id="current-password" required>
@@ -344,21 +436,44 @@
 
 <%-include('../partials/footer')%>
 
-
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
 <script>
 
+
+    function displayErrorMessage(message, errorMessageElement) {
+        errorMessageElement.textContent = message;
+    }
+
+    function copyReferralLink() {
+        event.preventDefault()
+        const referralLinkInput = document.getElementById('referralLink');
+
+        referralLinkInput.select();
+        referralLinkInput.setSelectionRange(0, 99999); 
+
+        document.execCommand('copy');
+
+        const copyStatus = document.getElementById('copyStatus');
+        copyStatus.textContent = 'Referral link copied to clipboard!';
+        
+        setTimeout(() => {
+            copyStatus.textContent = '';
+        }, 3000);
+    }
+
+
+
 function isPasswordStrong(password) {
-        // Regular expression for strong password: at least 8 characters, at least one uppercase letter, one lowercase letter, one number, and one special character
-        var strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+        let strongPasswordRegex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
         return strongPasswordRegex.test(password);
     }
 
     function changePassword(){
-        var newPassword = document.getElementById("newpassword").value;
-        var confirmPassword = document.getElementById("confirmpassword").value;
-		let currentpassword=document.getElementById('current-password').value
-        var passwordValidationMessage = document.getElementById("passwordValidationMessage");
+        let newPassword = document.getElementById("newpassword").value;
+        let confirmPassword = document.getElementById("confirmpassword").value;
+		let currentPassword=document.getElementById('current-password').value
+        let passwordValidationMessage = document.getElementById("passwordValidationMessage");
 		let err=document.getElementById('errorMessage')
 		if(newPassword!==confirmPassword){
 			err.innerHTML=" Both Password Not Match"
@@ -370,7 +485,7 @@ function isPasswordStrong(password) {
 			return
 		}
 
-		if(!confirmPassword || !currentpassword){
+		if(!confirmPassword || !currentPassword){
 			err.innerHTML=" all field must required"
 			return
 		}
@@ -381,7 +496,7 @@ function isPasswordStrong(password) {
             headers: {
                 'Content-Type': 'application/json',
             },
-            body: JSON.stringify({currentpassword:currentpassword,newPassword:newPassword}),
+            body: JSON.stringify({currentPassword,newPassword}),
         })
         .then(response => {
             if (!response.ok) {
@@ -395,12 +510,13 @@ function isPasswordStrong(password) {
 
             if (data.success) {
                 successMessageDiv.textContent = data.message;
-                errorMessageDiv.textContent = ''; // Clear any previous error messages
+                errorMessageDiv.textContent = ''; 
                 document.getElementById('changePasswordForm').reset();
             } else {
                 errorMessageDiv.textContent = data.message;
-                successMessageDiv.textContent = ''; // Clear any previous success messages
+                successMessageDiv.textContent = ''; 
             }
+            window.location.reload()
         })
         .catch(error => {
             console.error('Error:', error);
@@ -594,74 +710,90 @@ function isPasswordStrong(password) {
 }
 
 
-	function validateForm() {
+function validateForm() {
+        let name = document.getElementById("formname").value;
+        let phone = document.getElementById("formphone").value;
+        let email = document.getElementById("formemail").value;
+        let address = document.getElementById("formaddress").value;
+        let pincode = document.getElementById("formpincode").value;
+        let state = document.getElementById("formstate").value;
+        let city = document.getElementById("formcity").value;
 
-		const name = document.getElementById('name').value;
-        const phone = document.getElementById('phone').value;
-        const email = document.getElementById('email').value;
-        const address = document.getElementById('address').value; 
-        const pincode = document.getElementById('pincode').value;
-        const state = document.getElementById('state').value;
-        const city = document.getElementById('city').value;
+        document.getElementById("nameError").innerText = "";
+        document.getElementById("phoneError").innerText = "";
+        document.getElementById("emailError").innerText = "";
+        document.getElementById("addressError").innerText = "";
+        document.getElementById("pincodeError").innerText = "";
+        document.getElementById("stateError").innerText = "";
+        document.getElementById("cityError").innerText = "";
 
-        resetErrorMessages();
+        let isValid = true;
 
-        if (name.value.length < 5) {
-            displayErrorMessage(name, "Name must have at least 5 characters.");
-            return false;
+        if (name === "") {
+            document.getElementById("nameError").innerText = "Name is required";
+            isValid = false;
         }
 
-        if (phone.value.length < 5) {
-            displayErrorMessage(phone, "Phone must have at least 10 characters");
-            return false;
+        if (phone === "") {
+            document.getElementById("phoneError").innerText = "Phone is required";
+            isValid = false;
         }
 
-        if (email.value.length < 5 || !isValidEmail(email.value)) {
-            displayErrorMessage(email, "Email must have at least 5 characters.");
-            return false;
+        if (email === "") {
+            document.getElementById("emailError").innerText = "Email is required";
+            isValid = false;
+        }else if (!validateEmail(email)) {
+            document.getElementById("emailError").innerText = "Invalid email format";
+            isValid = false;
         }
 
-        if (address.value.length < 5) {
-            displayErrorMessage(address, "Address code must have at least 5 characters.");
-            return false;
+        if (address === "") {
+            document.getElementById("addressError").innerText = "Address is required";
+            isValid = false;
         }
 
-        if (pincode.value.length < 5) {
-            displayErrorMessage(pincode, "Pincode number must have at least 5 characters.");
-            return false;
+        if (pincode === "") {
+            document.getElementById("pincodeError").innerText = "Pincode is required";
+            isValid = false;
         }
 
-        if (state.value.length < 5 ) {
-            displayErrorMessage(state, "State must have at least 3 characters and be valid.");
-            return false;
+        if (state === "") {
+            document.getElementById("stateError").innerText = "State is required";
+            isValid = false;
         }
 
-        if (city.value.length < 5) {
-            displayErrorMessage(city, "City must have at least 3 characters.");
-            return false;
+        if (city === "") {
+            document.getElementById("cityError").innerText = "City is required";
+            isValid = false;
         }
 
-        return true;
+
+        return isValid;
     }
 
-	function isValidEmail(email) {
-        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-        return emailRegex.test(email);
-    }
+    function validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
 
-	function displayErrorMessage(element, message) {
-        const errorMessage = document.createElement("div");
-        errorMessage.className = "text-danger";
-        errorMessage.innerHTML = message;
-        element.parentNode.appendChild(errorMessage);
-    }
+    document.getElementById("formphone").addEventListener("input", function(event) {
+        let input = this.value.replace(/\D/g, ''); 
+        this.value = input; 
+    });
 
-    function resetErrorMessages() {
-        const errorMessages = document.querySelectorAll(".text-danger");
-        errorMessages.forEach(function (errorMessage) {
-            errorMessage.parentNode.removeChild(errorMessage);
-        });
-    }
+    $('input').keydown(function(event) {
+        if (event.keyCode == 13) {
+            event.preventDefault();
+            var inputs = $(this).closest('form').find(':input');
+            var idx = inputs.index(this);
+            if (idx == inputs.length - 1) {
+                inputs[0].select();
+            } else {
+                inputs[idx + 1].focus();
+            }
+        }
+    });
+
 
 
 	function removeAddress(addressid){
@@ -673,7 +805,7 @@ function isPasswordStrong(password) {
             confirmButtonColor: '#3085d6',
             cancelButtonColor: '#d33',
             confirmButtonText: 'Yes, delete it!'
-        }).then((result) => {
+        }).then( (result) => {
             if (result.isConfirmed) {
                 deleteAddress(addressid);
             }
@@ -692,8 +824,10 @@ function isPasswordStrong(password) {
                 throw new Error(`HTTP error! Status: ${response.status}`);
             }
             console.log('Address removed successfully');
-            reloadAddressTab();
-        })
+            
+        }).then(()=>{
+			window.location.reload()
+		})
         .catch(error => {
             console.error('Error removing address:', error);
         });

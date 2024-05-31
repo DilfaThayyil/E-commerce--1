@@ -1,6 +1,5 @@
 const express = require('express')
 const app = express()
-const port = 3000
 const path = require('path')
 const userRouter = require('./router/userRouter')
 const adminRouter = require('./router/adminRouter')
@@ -44,7 +43,7 @@ app.use('/',onlineLogin)
 
 
 
-app.listen(port,()=>{
+app.listen(process.env.PORT,()=>{
     console.log("server is connected");
 })
 

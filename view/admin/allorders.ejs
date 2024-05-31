@@ -1,70 +1,8 @@
 <%-include('../partials/adminHeader')%>
     <div class="container-scroller">
       <!-- partial:partials/_sidebar.html -->
-      <nav class="sidebar sidebar-offcanvas" id="sidebar">
-        <div class="sidebar-brand-wrapper d-none d-lg-flex align-items-center justify-content-center fixed-top">
-          <a class="sidebar-brand brand-logo" href="index.html"><img src="/admin/assets/images/logo.svg" alt="logo" /></a>
-          <a class="sidebar-brand brand-logo-mini" href="index.html"><img src="/admin/assets/images/logo-mini.svg" alt="logo" /></a>
-        </div>
-        <ul class="nav">
-          <li class="nav-item profile">
-            <div class="profile-desc">
-              <div class="profile-pic">
-                <div class="count-indicator">
-                  <img class="img-xs rounded-circle " src="/admin/assets/images/faces/face15.jpg" alt="">
-                  <span class="count bg-success"></span>
-                </div>
-                <div class="profile-name">
-                  <h5 class="mb-0 font-weight-normal">Admin</h5>
-                  
-                </div>
-              </div>
-            </div>
-          </li>
-          
-          <li class="nav-item menu-items">
-            <a class="nav-link" href="/admin">
-              <span class="menu-icon">
-                <i class="mdi mdi-speedometer"></i>
-              </span>
-              <span class="menu-title">Dashboard</span>
-            </a>
-          </li>
-          <li class="nav-item menu-items">
-            <a class="nav-link" href="/admin/allusers" >
-              <span class="menu-icon">
-                <i class="mdi mdi-laptop"></i>
-              </span>
-              <span class="menu-title">All users</span>
-              
-            </a>
-          </li>
-          <li class="nav-item menu-items">
-            <a class="nav-link" href="/admin/allproducts">
-              <span class="menu-icon">
-                <i class="mdi mdi-playlist-play"></i>
-              </span>
-              <span class="menu-title">All Products</span>
-            </a>
-          </li>
-          <li class="nav-item menu-items">
-            <a class="nav-link" href="/admin/category">
-              <span class="menu-icon">
-                <i class="mdi mdi-table-large"></i>
-              </span>
-              <span class="menu-title">Category</span>
-            </a>
-          </li>
-          <li class="nav-item menu-items">
-            <a class="nav-link" href="/admin/allorders">
-              <span class="menu-icon">
-                <i class="mdi mdi-chart-bar"></i>
-              </span>
-              <span class="menu-title">All orders</span>
-            </a>
-          </li>
-        </ul>
-      </nav>
+      <%-include('../partials/adminNavbar')%>
+
       <!-- partial -->
       <div class="container-fluid page-body-wrapper">
         <!-- partial:partials/_navbar.html -->
@@ -105,20 +43,31 @@
                           <td><%= formattedDate%></td>
                           <td><%=order.userid.Name%></td>
                           <td><%=order.userid.Email%></td>
-                          <td><%=product.Status%></td>
+                          <%if(product.Status=='placed'){%>
+                            <td><i class="text-primary"><%=product.Status%></i></td>
+                          <%}else if(product.Status=='shipped'){%>
+                            <td><i class="text-warning"><%=product.Status%></i></td>
+                          <%}else if(product.Status=='delivered'){%>
+                            <td><i class="text-success"><%=product.Status%></i></td>
+                          <%}else if(product.Status=='cancelled'){%>
+                            <td><i class="text-danger"><%=product.Status%></i></td>
+                          <%}%>
+                          
                           <td>
+                            <%if(product.Status!=='cancelled' && product.Status!=='returned' && product.Status!=='request return' && product.Status!=='delivered'){%>
                             <div class="dropdown">
                               <button class="btn btn-success dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
                                 Status
                               </button>
-                              <div class="dropdown-menu" href="#" aria-labelledby="dropdownMenuButton">
+                              <div class="dropdown-menu te" href="#" aria-labelledby="dropdownMenuButton">
                                 <a class="dropdown-item" href="#" onclick="updateStatus('shipped', '<%= order._id %>','<%= product.products._id %>')">Shipped</a>
                                 <a class="dropdown-item" href="#" onclick="updateStatus('delivered', '<%= order._id %>','<%= product.products._id %>')">Delivered</a>
                                 <a class="dropdown-item" href="#" onclick="updateStatus('cancelled', '<%= order._id %>','<%= product.products._id %>')">Cancelled</a>
                               </div>
                             </div>
+                            <%}%>
                           </td>
-                        
+                          
                           
                           <td>
                             <a href="/admin/orderDetails/<%=order._id%>/<%=product.products._id%>" class="btn btn-primary">Detail</a>
